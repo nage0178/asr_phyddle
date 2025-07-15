@@ -52,6 +52,8 @@ do
 		((i=i+1))
 		
 	done
+	# This will only work for up to three states
+	probString="${probString},anc_state_other_pp=0.0"
 
 	sed -i "s/)${nodeOld}:/)[${stateString}${probString}]:/" simulate/sim.${idx}.ann.nex
 	
@@ -89,7 +91,7 @@ do
 		state_1=1
 	fi
 	
-	var="[index=${index},anc_state_1=${state_1},anc_state_2=${state_2},anc_state_3=${state_3},anc_state_1_pp=${prob1},anc_state_2_pp=${prob2},anc_state_3_pp=${prob3}]"
+	var="[index=${index},anc_state_1=${state_1},anc_state_2=${state_2},anc_state_3=${state_3},anc_state_1_pp=${prob1},anc_state_2_pp=${prob2},anc_state_3_pp=${prob3},anc_state_other_pp=0.0]"
 	((index=index+1))
 
 	# Combine these
