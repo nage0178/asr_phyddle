@@ -1,5 +1,6 @@
 
 rm empirical/*
+mkdir empirical
 rm -f truth.csv
 for i in {1..2500}
 do
@@ -15,7 +16,7 @@ do
 
 		# This is the one you are already estimating
 		echo  asr_node_label > empirical/out.${k}.labels.csv
-		echo $j >> empirical/out.${k}.labels.csv
+		echo node$j >> empirical/out.${k}.labels.csv
 		#head -$j simulate/out.${i}.anc_state.csv | tail -n 1 >> empirical/out.${k}.labels.csv
 
 		head -${j} simulate/out.${i}.anc_state.csv | tail -n 1 | awk -F , '{print $2}' >> truth.csv
