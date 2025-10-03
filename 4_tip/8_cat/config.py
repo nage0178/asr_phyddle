@@ -51,7 +51,7 @@ args = {
     #-------------------------------#
     # Train                         #
     #-------------------------------#
-    'trn_batch_size'     : 4000,                 # Training batch sizes
+    #'trn_batch_size'     : 4000,                 # Training batch sizes
 
     #'phy_kernel_stride'  : [7, 8],              # Kernel sizes for stride convolutional layers
                                                  #     for phylogenetic state input

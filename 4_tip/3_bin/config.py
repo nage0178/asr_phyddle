@@ -17,10 +17,9 @@ args = {
     #-------------------------------#
     # Simulate Step settings        #
     #-------------------------------#
-    'sim_command'       : 'Rscript sim_varyTree.R 4', # exact command string, argument is output file prefix
+    'sim_command'       : 'Rscript ../sim_varyTree.R 4', # exact command string, argument is output file prefix
 
     'start_idx'          : 1,                         # Start index for simulated training replicates
-    #'end_idx'            : 1,                      # End index for simulated training replicates
     'end_idx'            : 50000,                      # End index for simulated training replicates
     'sim_batch_size'     : 500,                        # Number of replicates per simulation command
 
@@ -34,14 +33,10 @@ args = {
     'brlen_encode'      : 'height_brlen',   # how to encode phylo brlen? height_only or height_brlen
     'char_encode'       : 'integer',        # how to encode discrete states? one_hot or integer
     # Need to change simulation
-    'param_est'         : {  'anc_state_1'     : 'cat'
-               # model parameters to predict (labels)
-#                            'asr_node_state'     : 'cat'
+    #'param_est'         : {  'anc_state_1'     : 'cat'}
 
     # If you change the values in format for estimate, the true values change but not the inferred values in terms of what variables are printed out
-                          },
     'asr_est'            : 'T',
-    #'asr_one'            : 'T',
 
     'char_format'       : 'csv',
     'min_num_taxa'       : 4,                  # Minimum number of taxa allowed when formatting
@@ -50,7 +45,7 @@ args = {
     #-------------------------------#
     # Train                         #
     #-------------------------------#
-    'trn_batch_size'     : 4000,                 # Training batch sizes
+    #'trn_batch_size'     : 4000,                 # Training batch sizes
 
     #'phy_kernel_stride'  : [7, 8],              # Kernel sizes for stride convolutional layers
                                                  #     for phylogenetic state input
