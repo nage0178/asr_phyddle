@@ -29,34 +29,8 @@ states[,6] <- ( asr_0) * (!asr_1) * ( asr_2)
 states[,7] <- ( asr_0) * ( asr_1) * (!asr_2)  
 states[,8] <- ( asr_0) * ( asr_1) * ( asr_2)  
 
-asymmMat <- matrix(NA, nrow = 8, ncol = 4)
-symmMat <- matrix(NA, nrow = 8, ncol = 4)
-print("done reading trees")
-ml_est <- rep(NA, reps/2)
-for (i in 1:(reps/2)) {
-	j <- i + 150000
-	true_state <- read.csv(paste("accuracy/out.", format(j, scientific = FALSE), ".anc_state.csv", sep = ""), header= FALSE)
-	infer_state <- read.csv(paste("accuracy/out.", format(j, scientific = FALSE), ".asr.csv", sep = ""), header = FALSE)
-	ml_est[i] <- all(true_state[, 2] == infer_state[,2])
-}
-
-print("ML average")
-mean(ml_est)
-for (j in 0:1) {
-	# Asymmetric is second
-	rows1 <- which((asymm*1) == j) 
-	for (i in 1:8) {
-		rows2 <- which (states[, i] == 1)
-		rows <- intersect(rows1, rows2)
-		rows <- which(rows < 175001)
-		if (j == 0 ) {
-			symmMat[i, 4] <- mean(ml_est[rows])
-		} else {
-			asymmMat[i, 4] <- mean(ml_est[rows])
-		}
-	}
-	print("")
-}
+asymmMat <- matrix(NA, nrow = 8, ncol = 3)
+symmMat <- matrix(NA, nrow = 8, ncol = 3)
 
 point_est <- matrix(NA, nrow = reps, ncol = 3)
 
