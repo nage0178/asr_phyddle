@@ -28,7 +28,6 @@ phy_fn = paste0(tmp_fn, ".tre")               # newick file
 dat_fn = paste0(tmp_fn, ".dat.csv")           # csv of data
 lbl_fn = paste0(tmp_fn, ".labels.csv")        # csv of labels (e.g. params)
 asr_true_fn = paste0(tmp_fn, ".anc_state.csv")     # csv of labels (e.g. params)
-asr_fn = paste0(tmp_fn, ".asr.csv")        # csv of labels (e.g. params)
 
 # dataset setup
 num_states = 2
@@ -102,36 +101,6 @@ for (i in 1:num_rep) {
 	label_sim =  state_sim_node
 	names(label_sim) = label_names
 	df_label = data.frame(t(label_sim))
-	if (rep_idx[i] < 2501 || rep_idx[i] > 150000) {
-		print(characterData$tip_states)
-		print(tree_sim)
-		asr_est <- asr_mk_model(tree_sim, tip_states = characterData$tip_states, Nstates = 2,  Ntrials = 1, optim_algorithm = "optim") 
-		#asr_est <- asr_mk_model(tree_sim, tip_states = characterData$tip_states, Nstates = 2,  Ntrials = 25, optim_algorithm = "optim") 
-		test <- fit_mk(tree_sim, Nstates = 2, tip_states = characterData$tip_states, Ntrials = 25)
-		print("mk")
-		print(test)
-		print("asr1")
-		print(asr_est)
-		print("asr2")
-		test2 <- asr_mk_model(tree_sim, tip_states = characterData$tip_states, Nstates = 2, transition_matrix = test$transition_matrix)
-		print(test2)
-		#asr_est <- asr_mk_model(tree_sim, characterData$tip_states, Nstates = 2, , Ntrials = 25) 
-		#print(asr_est)
-		#asr_est <- asr_mk_model(tree_sim, characterData$tip_states, Nstates = 2, , Ntrials = 25) 
-		#print(asr_est)
-		#print(asr_est$ancestral_likelihood)
-		test3 <- ace(characterData$tip_states,tree_sim,model="ER",type="discrete")
-		print("test3")
-		print(test3)
-		#print(test3$lik.anc[1] * 10^6)
-		asr_est_print <- data.frame((asr_est$ancestral_states - 1))
-		asr_est_print <- cbind(asr_est_print, asr_est$ancestral_likelihood)
-		print
-#		colnames(asr_est_print) <- c("state", "prob0", "prob1")
-		rownames(asr_est_print) <- tree_sim$node.label
-		
-		write.table(asr_est_print, file = asr_fn[i], sep = ',', col.names =F, row.names =T, quote = F)
-        }
 
 	#True states
 	trueRename <- df_label
@@ -146,9 +115,5 @@ for (i in 1:num_rep) {
 	
 
 }
-		sprintf("%.10f",asr_est$ancestral_likelihood[1])
-		sprintf("%.10f",asr_est$loglikelihood)
-		sprintf("%.10f",test2$loglikelihood)
-
 
 # done!
