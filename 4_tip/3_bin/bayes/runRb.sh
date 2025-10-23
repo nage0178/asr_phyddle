@@ -13,3 +13,4 @@ do
 	fi
 
 done
+../../../processScripts/parseBayes.sh 

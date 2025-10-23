@@ -15,3 +15,7 @@ for idx in {1..2500}
 do
 	tail -n+2 parseRb/node_prob_${idx} >> all_Bayes.csv
 done
+
+rm nodes
+rm probs
+rm node_prob
