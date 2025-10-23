@@ -11,7 +11,7 @@ cd ../8_cat
 cd ../
 
 cd 3_bin
-/storage/anna/asr_phyddle/process.sh $tips $size
-/storage/anna/asr_phyddle/parseParallel.sh $tips $size
+/storage/anna/asr_phyddle/processScripts/process.sh $tips $size
+/storage/anna/asr_phyddle/processScripts/parseParallel.sh $tips $size
 #/storage/anna/asr_phyddle/mlParseParallel.sh $tips $size 
 cd ../

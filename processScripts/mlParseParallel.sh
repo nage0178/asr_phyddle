@@ -14,7 +14,7 @@ echo $length
 for ((line2=2; line2<=length; line2++))
 do
 	echo $line2
-	/storage/anna/asr_phyddle/parseOneMl.sh $line2 &
+	/storage/anna/asr_phyddle/processScripts/parseOneMl.sh $line2 &
 	if (( line2 % 100 == 0 ))
 	then
 		echo waiting $line2
