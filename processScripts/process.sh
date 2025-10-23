@@ -11,4 +11,4 @@ do
 
 done
 awk -v var=$tip_1 'BEGIN{FS=OFS=","} {NF=var; print}' true_anc_state > true_anc_state.csv
-rm true_anc_state.csv
+rm true_anc_state
