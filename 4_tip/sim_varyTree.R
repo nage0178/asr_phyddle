@@ -102,8 +102,28 @@ for (i in 1:num_rep) {
 	label_sim =  state_sim_node
 	names(label_sim) = label_names
 	df_label = data.frame(t(label_sim))
-	if (rep_idx[i] < 2501) {
-		asr_est <- asr_mk_model(tree_sim, characterData$tip_states, Nstates = 2, , Ntrials = 25) 
+	if (rep_idx[i] < 2501 || rep_idx[i] > 150000) {
+		print(characterData$tip_states)
+		print(tree_sim)
+		asr_est <- asr_mk_model(tree_sim, tip_states = characterData$tip_states, Nstates = 2,  Ntrials = 1, optim_algorithm = "optim") 
+		#asr_est <- asr_mk_model(tree_sim, tip_states = characterData$tip_states, Nstates = 2,  Ntrials = 25, optim_algorithm = "optim") 
+		test <- fit_mk(tree_sim, Nstates = 2, tip_states = characterData$tip_states, Ntrials = 25)
+		print("mk")
+		print(test)
+		print("asr1")
+		print(asr_est)
+		print("asr2")
+		test2 <- asr_mk_model(tree_sim, tip_states = characterData$tip_states, Nstates = 2, transition_matrix = test$transition_matrix)
+		print(test2)
+		#asr_est <- asr_mk_model(tree_sim, characterData$tip_states, Nstates = 2, , Ntrials = 25) 
+		#print(asr_est)
+		#asr_est <- asr_mk_model(tree_sim, characterData$tip_states, Nstates = 2, , Ntrials = 25) 
+		#print(asr_est)
+		#print(asr_est$ancestral_likelihood)
+		test3 <- ace(characterData$tip_states,tree_sim,model="ER",type="discrete")
+		print("test3")
+		print(test3)
+		#print(test3$lik.anc[1] * 10^6)
 		asr_est_print <- data.frame((asr_est$ancestral_states - 1))
 		asr_est_print <- cbind(asr_est_print, asr_est$ancestral_likelihood)
 		print
@@ -126,6 +146,9 @@ for (i in 1:num_rep) {
 	
 
 }
+		sprintf("%.10f",asr_est$ancestral_likelihood[1])
+		sprintf("%.10f",asr_est$loglikelihood)
+		sprintf("%.10f",test2$loglikelihood)
 
 
 # done!
