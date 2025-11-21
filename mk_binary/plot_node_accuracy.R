@@ -4,12 +4,12 @@ library(ggplot2)
 
 wkdirs <- c("~/asr_phyddle/mk_binary/fix/", "~/asr_phyddle/mk_binary/var/")
 savedir <- "~/asr_writing/manuscript/figs/"
-dirs <- c("50/", "100/", "500/")
+dirs <- c("50/", "100/", "200/")
 dirs <- c(paste(wkdirs[1], dirs, sep = ""), paste(wkdirs[2], dirs, sep = ""))
 
 j <- 1
 k <- 1
-prob_by_node <- matrix(NA, ncol = 4, nrow = (49 + 99 + 499)*2)
+prob_by_node <- matrix(NA, ncol = 4, nrow = (49 + 99 + 199)*2)
 colnames(prob_by_node) <- c("node_number", "probability_correct", "n_tips", "size_range")
 
 for (dir in dirs) {
@@ -83,9 +83,14 @@ size_names <- c(
   `0` = "variable",
   `1` = "fixed")
 
-pdf("~/asr_writing/manuscript/figs/accuracy_by_node.pdf", width =9, height = 3)
-ggplot(prob_by_node_df, aes(node_number, probability_correct, color = size_range)) + geom_point(size = 0.5) + 
+panelC <- ggplot(prob_by_node_df, aes(node_number, probability_correct, color = size_range)) + geom_point(size = 0.5) + 
   facet_wrap(~n_tips, scales = "free_x", nrow = 1) + theme_classic()+  scale_color_manual(labels = c( "variable", "fixed"), values = cols) +
-  labs(x = "Phyddle node number",
-       y = "Accuracy", color = "tree size") 
+  labs(x = "phyddle node number",
+       y = "proportion correct", color = "tree size") 
+pdf("~/asr_writing/manuscript/figs/accuracy_by_node.pdf", width =9, height = 3)
+print(panelC)
+dev.off()
+
+png("~/asr_writing/manuscript/figs/accuracy_by_node.png", width =9, height = 3, units = "in", res = 500)
+print(panelC)
 dev.off()

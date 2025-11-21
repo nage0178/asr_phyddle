@@ -4,7 +4,7 @@ library(ggplot2)
 
 wkdirs <- c("~/asr_phyddle/mk_binary/fix/", "~/asr_phyddle/mk_binary/var/")
 savedir <- "~/asr_writing/manuscript/figs/"
-dirs <- c("50/", "100/", "500/")
+dirs <- c("50/", "100/", "200/") #,  "500/")
 dirs <- c(paste(wkdirs[1], dirs, sep = ""), paste(wkdirs[2], dirs, sep = ""))
 
 numBins <- 11
@@ -27,21 +27,39 @@ for (dir in dirs) {
   }
   truth <- read.csv(paste(dir, "truth.csv", sep = ""))
   est <- read.csv(paste(dir, "est.csv", sep = ""))
-  ml <- read.csv(paste(dir, "ml_asr.csv", sep = ""), header = FALSE)
   ages <- read.csv(paste(dir, "prop_ages.csv", sep = ""))
   est_phyddle <- read.csv(paste(dir, "estimate/out.test_est.labels_cat.csv", sep = ""))
   true_phyddle <- read.csv(paste(dir, "estimate/out.test_true.labels_cat.csv", sep = ""))
   
+  bayes <- read.csv(paste(dir, "bayes/all_Bayes.csv", sep = ""))
+  conv <- read.table(paste(dir, "bayes/notConverged", sep = ""), header = TRUE, sep = ",")
+  idx_rm <- conv[, 2]
+  #probZero <- which(is.na(bayes$anc_state_2))
+  #bayes$anc_state_2[probZero] <- (bayes$anc_state_1 == 0)[probZero]
+  #row_Ones <- which(bayes$anc_state_1 == 1)
+  #row_Twos <- which(bayes$anc_state_2 == 1)
+  #bayes$probOne <- NA
+  #bayes$probOne[row_Ones] <- bayes$anc_state_1_pp[row_Ones]
+  #bayes$probOne[row_Twos] <- bayes$anc_state_2_pp[row_Twos]
+  #ml <- matrix(bayes$probOne, nrow = 2500, byrow = TRUE)
+  ml <- matrix(bayes$anc_state_1, ncol = dim(truth)[2] -1, byrow = TRUE)
+  ml[idx_rm, ] <- NA
+  
+  if (dim(est_phyddle)[1] > 2500) {
+    est_phyddle <- est_phyddle[1:2500, ]
+    true_phyddle <- true_phyddle[1:2500, ]
+  }
+  
   nstates <- dim(truth)[2] - 1 
   
-  results <-matrix(NA, nrow = nstates, ncol = 7)
+  #results <-matrix(NA, nrow = nstates, ncol = 7)
   
   # Binary estimates
   bin_est <- matrix(NA, nrow = dim(truth)[1], ncol = dim(truth)[2])
   prob    <- matrix(NA, nrow = dim(truth)[1], ncol = dim(truth)[2] -1)
   bin_phy <- matrix(NA, nrow = dim(truth)[1], ncol = dim(truth)[2] -1)
   
-  colnames(results) <- c("DL", "ML", "DL_ML", "DL_low", "DL_high", "ML_low", "ML_high")
+  #colnames(results) <- c("DL", "ML", "DL_ML", "DL_low", "DL_high", "ML_low", "ML_high")
   for (i in c(1:(dim(est_phyddle)[2]/2))) {
     colZero <- 2+(i-1)*2
     colOne <- 3+(i-1)*2
@@ -80,9 +98,8 @@ for (dir in dirs) {
   # This is the proportion correct by tree height
   correct_est <- (bin_est == truth)[,2:dim(truth)[2]]
   correct_est_ml <- (ml == truth[, 2:dim(truth)[2]])
-  # Anna why is this ml? We are comparing against 
-  match <- (bin_est[,2:dim(truth)[2]]) == ml
-  
+  correct_est_ml[idx_rm, ] <- NA
+ 
   v_ages <- c(as.matrix(ages[,2:dim(truth)[2]]))
   times_by_est <- cbind(v_ages, c(correct_est),  c(correct_est_ml))
   colnames(times_by_est) <- c("age", "phyddle_correct", "ml_correct")
@@ -105,8 +122,8 @@ for (dir in dirs) {
     mean_correct[i+1, 1] <- mean(times_by_est[index,1])
     mean_correct[i+1, 2] <- mean(times_by_est[index,2])
     
-    mean_correct_ml[i+1, 1] <- mean(times_by_est[index,1])
-    mean_correct_ml[i+1, 2] <- mean(times_by_est[index,3])
+    mean_correct_ml[i+1, 1] <- mean(times_by_est[index,1], na.rm = TRUE)
+    mean_correct_ml[i+1, 2] <- mean(times_by_est[index,3], na.rm = TRUE)
   }
   
   correct_by_height[((j-1) *numBins +1): (j*numBins), 1] <- nstates + 1
@@ -118,26 +135,11 @@ for (dir in dirs) {
   correct_by_height_ml[((j-1) *numBins +1): (j*numBins), 2] <- mean_correct_ml[,1]
   correct_by_height_ml[((j-1) *numBins +1): (j*numBins), 3] <- mean_correct_ml[,2]
   correct_by_height_ml[((j-1) *numBins +1): (j*numBins), 4] <- fix
-  
-  correct_est_ml <- (ml == truth[, 2:dim(truth)[2]])
-  v_ages <- c(as.matrix(ages[,2:dim(truth)[2]]))
-  times_by_est_ml <- cbind(c(correct_est_ml), v_ages)
-  times_by_est_ml <- times_by_est_ml[-which(is.na(times_by_est_ml[,1])),]
-  times_by_est_ml <- cbind(times_by_est_ml, floor(times_by_est_ml[,2] * 10 ))
-  mean_correct_ml <- matrix(0, nrow = 11, ncol = 2)
-  for (i in 0:10) {
-    index <- which(times_by_est_ml[,3] == i)
-    print(length(index))
-    mean_correct_ml[i+1, 2] <- mean(times_by_est_ml[index,1])
-    mean_correct_ml[i+1, 1] <- mean(times_by_est_ml[index,2])
-  }
-
-  all_mean_correct <- rbind(mean_correct[,1:2], mean_correct_ml)
 
   j <- j + 1
 }
 
-method <- c(rep("phyddle", dim(correct_by_height)[1]), rep("maximum\nlikelihood", dim(correct_by_height_ml)[1]))
+method <- c(rep("phyddle", dim(correct_by_height)[1]), rep("Bayesian\ninference", dim(correct_by_height_ml)[1]))
 
 correct_by_height_df <- as.data.frame(rbind(correct_by_height, correct_by_height_ml))
 correct_by_height_df$n_tips <- as.factor(correct_by_height_df$n_tips )
@@ -148,15 +150,40 @@ size_names <- c(
   `0` = "variable",
   `1` = "fixed")
 
-pdf(paste(savedir, "mk_height_fixSize.pdf", sep = ""), width =8, height = 3)
-ggplot(correct_by_height_df, aes(avg_height, avg_correct, color = n_tips, pch = method, linetype = method)) + facet_wrap(~size_range, labeller = as_labeller(size_names)) + 
+pdf(paste(savedir, "mk_height_fixVarSize.pdf", sep = ""), width =8, height = 3)
+both <- ggplot(correct_by_height_df, aes(avg_height, avg_correct, color = n_tips, pch = method, linetype = method)) + facet_wrap(~size_range, labeller = as_labeller(size_names)) + 
   geom_point() + theme_classic() + geom_line() + 
   labs(x = "mean proportion of tree height",
        y = "probability inferred state is correct", 
        color = "tree size") 
+print(both)
 dev.off()
 
-ggplot(correct_by_height_df, aes(avg_height, avg_correct, color = n_tips, pch = size_range, linetype = size_range)) + facet_wrap(~method) + 
+correct_by_height_fix <- correct_by_height_df[-which(correct_by_height_df$size_range == 0  ), ]
+panelA <- ggplot(correct_by_height_fix, aes(avg_height, avg_correct, color = n_tips, pch = method, linetype = method)) + 
+  geom_point() + theme_classic() + geom_line() + 
+  labs(x = "Mean proportion of tree height",
+       y = "proportion correct", 
+       color = "tree size") 
+pdf(paste(savedir, "mk_height_fixSize.pdf", sep = ""), width =5, height = 3)
+print(panelA )
+dev.off()
+
+png(paste(savedir, "mk_height_fixSize.png", sep = ""), width =5, height = 3, units = "in", res = 500)
+print(panelA )
+dev.off()
+
+correct_by_height_var <- correct_by_height_df[which(correct_by_height_df$size_range == 0  ), ]
+pdf(paste(savedir, "mk_height_varSize.pdf", sep = ""), width =5, height = 3)
+accuracy_height <- ggplot(correct_by_height_var, aes(avg_height, avg_correct, color = n_tips, pch = method, linetype = method)) + 
+  geom_point() + theme_classic() + geom_line() + 
+  labs(x = "Mean proportion of tree height",
+       y = "proportion correct", 
+       color = "tree size") 
+print(accuracy_height)
+dev.off()
+
+plot <- ggplot(correct_by_height_df, aes(avg_height, avg_correct, color = n_tips, pch = size_range, linetype = size_range)) + facet_wrap(~method) + 
   geom_point() + theme_classic() + geom_line() + 
   labs(x = "mean proportion of tree height",
        y = "probability inferred state is correct", 
@@ -167,15 +194,19 @@ probs_correct_df$n_tips <- as.factor(probs_correct_df$n_tips)
 probs_correct_df <- probs_correct_df[1:(dim(probs_correct_df)[1]/2), ]
 
 pdf("~/asr_writing/manuscript/figs/prob_correct_by_prob.pdf", width =4, height = 3)
-ggplot(probs_correct_df, aes(average_estimate, probability_correct, color = n_tips, pch = n_tips, linetype = n_tips)) +
+probCorrect <- ggplot(probs_correct_df, aes(average_estimate, probability_correct, color = n_tips, pch = n_tips, linetype = n_tips)) +
  # facet_wrap(~size_range, labeller = as_labeller(size_names)) + 
   geom_abline(intercept = 0, slope = 1) + 
   geom_point() + theme_classic() + geom_line() + 
   labs(x = "mean phyddle probability of state 1 ",
        y = "probability state 1 is correct", 
        color = "tree size", pch = "tree size", linetype = "tree size") 
+print(probCorrect)
 dev.off()
 
+png("~/asr_writing/manuscript/figs/prob_correct_by_prob.png", width =4, height = 3, units = "in", res = 500)
+print(probCorrect)
+dev.off()
 accuracy <- c(NA, length(dirs))
   j <-1 
 for (dir in dirs) {
