@@ -1,0 +1,233 @@
+################################################################################
+#
+# RevBayes Analysis: Bayesian inference of diversification rates under a
+#                    character-dependent birth-death model.
+#                    Here each transition rate between observed states is
+#                    drawn from an independent exponentially distributed
+#                    rate.
+#
+#
+# authors: Sebastian Hoehna, Will Freyman
+#
+################################################################################
+
+######
+## WARNING: the tutorial associated with this script uses code snippets
+## This means any changes made here can affect the tutorial's text, so 
+## please update tutorial markdown (bisse.md) if you make any changes to text
+######
+
+#######################
+# Reading in the Data #
+#######################
+
+IDX = args[1] 
+
+NUM_STATES = 2
+
+### Read in the data
+observed_phylogeny <- readTrees("../simulate/out." + IDX + ".tre")[1]
+data <- readCharacterData("data/out." + IDX + ".dat.nex")
+
+# Get some useful variables from the data. We need these later on.
+num_taxa <- observed_phylogeny.ntips()
+
+# Create some vector for the moves and monitors of this analysis
+moves    = VectorMoves()
+monitors = VectorMonitors()
+
+
+####################
+# Create the rates #
+####################
+
+### Specify a prior on the diversification and turnover rate
+
+for (i in 1:NUM_STATES) {
+
+    ### Create a loguniform distributed variable for the diversification rate
+    lambda[i] ~ dnUniform(-2, 0)
+    speciation[i] := 10^lambda[i]
+    moves.append( mvScale(lambda[i],lambda=0.20,tune=true,weight=3.0) )
+    #speciation[i] ~ dnLoguniform( 1E-6, 1E2)
+    #moves.append( mvScale(speciation[i],lambda=0.20,tune=true,weight=3.0) )
+
+}
+
+for (i in 1:NUM_STATES) {
+
+    ### Create a loguniform distributed variable for the turnover rate
+    mu[i] ~ dnUniform(-2, 0)
+
+    extinction[i] := abs(min(speciation) * 10^mu[i])
+    moves.append( mvScale(mu[i],lambda=0.20,tune=true,weight=3.0) )
+    #extinction[i] ~ dnLoguniform( 1E-6, 1E2)
+    #moves.append( mvScale(extinction[i],lambda=0.20,tune=true,weight=3.0) )
+
+    diversification[i] := speciation[i] - extinction[i]
+
+}
+
+# initializing starting values
+# here just so we don't have the two loops together in the tutorial
+#for (i in 1:NUM_STATES) {
+#speciation[i].setValue( ln(367.0/2.0) / observed_phylogeny.rootAge() )
+#extinction[i].setValue( speciation[i]/10.0 )
+#}
+
+
+#########################################################
+# Set up the transition rate matrix for observed states #
+#########################################################
+
+# Each transition rate between observed states are drawn
+# from an exponential distribution with a mean of 10
+# character state transitions over the tree.
+#rate_pr := observed_phylogeny.treeLength() / 10
+for ( i in 1:(NUM_STATES*(NUM_STATES-1)) ) {
+    x[i] ~ dnUniform(-2, 0)
+    transition_rates[i] := 10^x[i]
+    moves.append( mvScale(x[i], lambda=0.20,tune=true,weight=3.0) )
+    #transition_rates[i] ~ dnExp(rate_pr)
+    #moves.append( mvScale(transition_rates[i],lambda=0.20,tune=true,weight=3.0) )
+}
+
+
+
+######################################################################
+# Create the rate matrix for the combined observed and hidden states #
+######################################################################
+rate_matrix := fnFreeBinary( transition_rates, rescaled=false)
+
+
+#####################################
+# Set up the root state frequencies #
+#####################################
+
+### Create a constant variable with the prior probabilities of each rate category at the root.
+#root_state_freq ~ dnDirichlet( rep(1,NUM_STATES) )
+g := speciation[1] - extinction[1] - speciation[2] + extinction[2]
+q01 := transition_rates[1]
+q10 := transition_rates[2]
+a := -g 
+b := g - q01 -q10
+c := q10
+root1 := (-b + sqrt(abs(b^2 - 4 * a * c))) / (2 * a)
+root2 := (-b - sqrt(abs(b^2 - 4 * a * c))) / (2 * a)
+if (root1 >= 0 && root1 <=1 ) {
+	root := root1
+} else {
+	root := root2
+}
+
+
+root_state_freq[1] := abs(root )
+root_state_freq[2] := abs(1 - root)
+rf :=simplex(abs(root), abs(1-root))
+
+#moves.append( mvDirichletSimplex(root_state_freq,tune=true,weight=2) )
+
+
+### Create the fix parameter for the age of the root set to the observed age
+root_age <- observed_phylogeny.rootAge()
+
+
+### rho is the probability of sampling species at the present
+### fix this to 233/367
+sampling <-1 
+
+#### construct a variable for the tree drawn from a birth death process
+#timetree ~ dnCDBDP( rootAge           = root_age,
+#                    speciationRates   = speciation,
+#                    extinctionRates   = extinction,
+#                    Q                 = rate_matrix,
+#                    pi                = root_state_freq,
+#                    delta             = 1.0,
+#                    simulateCondition = "numTips",
+#                    rho               = sampling)
+
+timetree ~ dnCDBDP( rootAge           = root_age,
+                    speciationRates   = speciation,
+                    extinctionRates   = extinction,
+                    Q                 = rate_matrix,
+		    pi                = rf,
+                    delta             = 1.0,
+                    rho               = sampling,
+                    condition         = "survival", 
+                    simulateCondition = "numTips")
+
+### clamp the model with the "observed" tree
+timetree.clamp( observed_phylogeny )
+
+timetree.clampCharData( data )
+
+
+#############
+# The Model #
+#############
+
+### workspace model wrapper ###
+mymodel = model(timetree)
+
+### set up the monitors that will output parameter values to file and screen
+monitors.append( mnModel(filename="output/" + IDX + "_BiSSE.log", printgen=1) )
+
+# ancestral states monitor
+monitors.append( mnJointConditionalAncestralState(tree            = timetree, 
+                                                  cdbdp           = timetree, 
+                                                  type            = "Standard", 
+                                                  printgen        = 1, 
+                                                  withTips        = true, 
+                                                  withStartStates = false, 
+                                                  filename        = "output/" + IDX + "_BiSSE_anc_states.log") )
+
+## stochastic character map monitor
+#monitors.append( mnStochasticCharacterMap(cdbdp    = timetree, 
+#                                          filename = "output/" + IDX + "_BiSSE_stoch_map.log", 
+#                                          printgen = 1) )
+
+monitors.append( mnScreen(printgen=10, speciation, extinction) )
+
+
+################
+# The Analysis #
+################
+
+### workspace mcmc
+mymcmc = mcmc(mymodel, monitors, moves, nruns=2, combine="mixed")
+
+### run the MCMC
+mymcmc.burnin(generations = 1500, tuningInterval = 100 )
+mymcmc.run(generations=15000)
+# I originally ran 5000
+#mymcmc.run(generations=5000, tuningInterval=200)
+#mymcmc.run(generations=50, tuningInterval=20)
+
+
+
+##############################
+# Summarize ancestral states #
+##############################
+
+# read ancestral states file
+anc_states = readAncestralStateTrace("output/" + IDX + "_BiSSE_anc_states.log")
+
+# get ancestral state tree
+anc_tree = ancestralStateTree(tree                         = observed_phylogeny,
+                              ancestral_state_trace_vector = anc_states,
+                              include_start_states         = false,
+                              file                         = "output/" + IDX + "_BiSSE_anc_states_results.tree",
+                              summary_statistic            = "MAP",
+                              site                         = 1)
+
+                            #  burnin                       = 0.1,
+# do the same for stochastic character map
+#anc_state_trace = readAncestralStateTrace("output/" + IDX + "_BiSSE_stoch_map.log")
+#characterMapTree(tree                         = observed_phylogeny,
+#                 ancestral_state_trace_vector = anc_state_trace,
+#                 character_file               = "output/" + IDX + "_BiSSE_stoch_map_character.tree",
+#                 posterior_file               = "output/" + IDX + "_BiSSE_stoch_map_posterior.tree",
+#                 burnin                       = 0.1,
+#                 reconstruction               = "marginal")
+#
+q()
