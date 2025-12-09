@@ -47,6 +47,7 @@ args = {
     'char_format'       : 'csv',
     'min_num_taxa'       : 4,                  # Minimum number of taxa allowed when formatting
     'max_num_taxa'       : 4,                  # Maximum number of taxa allowed when formatting
+    'shuffle_test'       : 'F', 
 
     #-------------------------------#
     # Train                         #

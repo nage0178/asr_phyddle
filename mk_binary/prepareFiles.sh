@@ -4,6 +4,8 @@ do
 	for size in 50 100 200 
 	do
 		mkdir -p $dir/$size
+		mkdir -p $dir/$size/bayes/output
+		mkdir -p $dir/$size/bayes/out_screen
 
 
 		if [ "$dir" =  "fix" ];
@@ -20,3 +22,5 @@ do
 		
 	done
 done
+
+
