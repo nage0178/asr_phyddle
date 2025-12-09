@@ -74,14 +74,23 @@ mean(est3_bin == true3[, 2:4])
 # mean(est3Cat == true3[, 2])
 
 # ML
+bayes <- read.csv("~/asr_phyddle/4_tip/3_bin/bayes/all_Bayes.csv")
+probZero <- which(is.na(bayes$anc_state_2))
+bayes$anc_state_2[probZero] <- (bayes$anc_state_1 == 0)[probZero]
+row_Ones <- which(bayes$anc_state_1 == 1)
+row_Twos <- which(bayes$anc_state_2 == 1)
+bayes$probOne <- NA
+bayes$probOne[row_Ones] <- bayes$anc_state_1_pp[row_Ones] 
+bayes$probOne[row_Twos] <- bayes$anc_state_2_pp[row_Twos] 
+ml3 <- bayes[, c(1:6)]
 true3_AS <- read.csv("~/asr_phyddle/4_tip/3_bin/all.anc_state.csv", header = FALSE)
-ml3 <- read.csv("~/asr_phyddle/4_tip/3_bin/all.asr.csv", header = FALSE)
+#ml3 <- read.csv("~/asr_phyddle/4_tip/3_bin/all.asr.csv", header = FALSE)
 
-reformat_ml3 <- cbind(ml3$V4[seq(1, to = 7500, by = 3)], 
-                      ml3$V4[seq(2, to = 7500, by = 3)], 
-                      ml3$V4[seq(1, to = 7500, by = 3)])
+# reformat_ml3 <- cbind(ml3$V4[seq(1, to = 7500, by = 3)], 
+#                       ml3$V4[seq(2, to = 7500, by = 3)], 
+#                       ml3$V4[seq(1, to = 7500, by = 3)])
 
-diff_est_ml <- abs(est8 - reformat_ml3)
+#diff_est_ml <- abs(est8 - reformat_ml3)
 # pdf("~/asr_writing/figs/4_tip/one_cat.pdf", width=6, height = 4)
 # hist(as.vector(diff_est_ml), xlim = c(0, .9), ylim = c(0, 4000), xlab = "abs(Phyddle probability - EB probability)", main = "One categorical, 8 states")
 # dev.off()
