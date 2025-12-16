@@ -31,22 +31,27 @@ for (dir in dirs) {
   ages <- read.csv(paste(dir, "prop_ages.csv", sep = ""))
   est_phyddle <- read.csv(paste(dir, "estimate/out.test_est.labels_cat.csv", sep = ""))
   true_phyddle <- read.csv(paste(dir, "estimate/out.test_true.labels_cat.csv", sep = ""))
+  notConverge <- read.csv(paste(dir, "bayes/notConverged", sep = ""), header = TRUE)
+  notConverge <- notConverge[,2]
   
- # if (dir == dirs[2])  {
-    bayes <- read.csv(paste(dir, "bayes/all_Bayes.csv", sep = ""))
-    probZero <- which(is.na(bayes$anc_state_2))
-    bayes$anc_state_2[probZero] <- (bayes$anc_state_1 == 0)[probZero]
-    row_Ones <- which(bayes$anc_state_1 == 1)
-    row_Twos <- which(bayes$anc_state_2 == 1)
-    bayes$probOne <- NA
-    bayes$probOne[row_Ones] <- bayes$anc_state_1_pp[row_Ones] 
-    bayes$probOne[row_Twos] <- bayes$anc_state_2_pp[row_Twos] 
- # } else {
-  #  ml <- read.csv(paste(dir, "ml_asr.csv", sep = ""), header = FALSE)
-    
-  #}
+  bayes <- read.csv(paste(dir, "bayes/all_Bayes.csv", sep = ""))
+  probZero <- which(is.na(bayes$anc_state_2))
+  bayes$anc_state_2[probZero] <- (bayes$anc_state_1 == 0)[probZero]
+  row_Ones <- which(bayes$anc_state_1 == 1)
+  row_Twos <- which(bayes$anc_state_2 == 1)
+  bayes$probOne <- NA
+  bayes$probOne[row_Ones] <- bayes$anc_state_1_pp[row_Ones] 
+  bayes$probOne[row_Twos] <- bayes$anc_state_2_pp[row_Twos] 
+  
+  # Remove points that did not converge
+  for (i in 1:2500) {
+    if (i %in% notConverge) {
+      rowsRm <- (i - 1)*49 + 1:49 
+      bayes[rowsRm, ] <- NA
+      
+    }
+  }
 
-  
   nstates <- dim(truth)[2] - 1 
   
   # Binary estimates
@@ -91,11 +96,7 @@ for (dir in dirs) {
   
   # This is the proportion correct by tree height
   correct_est <- (bin_est == truth)[,2:dim(truth)[2]]
-  #if (dir == dirs[2]) {
-    correct_est_ml <- (matrix(bayes$anc_state_1, nrow =2500, byrow = TRUE )== truth[, 2:dim(truth)[2]])
- # } else {
-  #  correct_est_ml <- (ml == truth[, 2:dim(truth)[2]])
-  #}
+  correct_est_ml <- (matrix(bayes$anc_state_1, nrow =2500, byrow = TRUE )== truth[, 2:dim(truth)[2]])
 
   v_ages <- c(as.matrix(ages[,2:dim(truth)[2]]))
   times_by_est <- cbind(v_ages, c(correct_est),  c(correct_est_ml))
@@ -201,20 +202,28 @@ dev.off()
 diff <- c()
 for (dir in dirs) {
   # Reordered plots
-  #if (dir == dirs[2]) {
-    bayes <- read.csv(paste(dir, "bayes/all_Bayes.csv", sep = ""))
-    probZero <- which(is.na(bayes$anc_state_2))
-    bayes$anc_state_2[probZero] <- (bayes$anc_state_1 == 0)[probZero]
-    row_Ones <- which(bayes$anc_state_1 == 1)
-    row_Twos <- which(bayes$anc_state_2 == 1)
-    bayes$probOne <- NA
-    bayes$probOne[row_Ones] <- bayes$anc_state_1_pp[row_Ones]
-    bayes$probOne[row_Twos] <- bayes$anc_state_2_pp[row_Twos]
-    ml_prob <- matrix(bayes$probOne, nrow = 2500, byrow = TRUE)
-  #} else {
-  #  dir <- "~/asr_phyddle/mk_binary/fix/50_unequal/"
-  #  ml_prob <- read.csv(paste(dir, "ML_prob.csv", sep = ""))
-  #}
+  
+  bayes <- read.csv(paste(dir, "bayes/all_Bayes.csv", sep = ""))
+  probZero <- which(is.na(bayes$anc_state_2))
+  bayes$anc_state_2[probZero] <- (bayes$anc_state_1 == 0)[probZero]
+  row_Ones <- which(bayes$anc_state_1 == 1)
+  row_Twos <- which(bayes$anc_state_2 == 1)
+  bayes$probOne <- NA
+  bayes$probOne[row_Ones] <- bayes$anc_state_1_pp[row_Ones]
+  bayes$probOne[row_Twos] <- bayes$anc_state_2_pp[row_Twos]
+  
+  notConverge <- read.csv(paste(dir, "bayes/notConverged", sep = ""), header = TRUE)
+  notConverge <- notConverge[,2]
+  # Remove points that did not converge
+  for (i in 1:2500) {
+    if (i %in% notConverge) {
+      rowsRm <- (i - 1)*49 + 1:49 
+      bayes[rowsRm, ] <- NA
+    }
+  }
+  
+  ml_prob <- matrix(bayes$probOne, nrow = 2500, byrow = TRUE)
+  
   est <- read.csv(paste(dir, "est.csv", sep = ""))
   
   if (  grepl("fix", dir, ignore.case = FALSE)) {
@@ -236,22 +245,41 @@ set.seed(1)
 nodeFromTree <- sample(1:49, 5000, replace = TRUE)
 startIndex <- 0:4999 * 49 
 reorder <- sample(nodeFromTree + startIndex)
-
 probs_df <- as.data.frame(probs_mat)
 probs_df$model <- c(rep("Markov", 2500 * 49), rep("BiSSE", 2500 * 49))
+
+indexRm <- which(is.na(probs_df$`Bayesian inference`[reorder]))
+reorder <- reorder[-indexRm]
+
 ggplot(probs_df[reorder, ], aes(x =`Bayesian inference`, y = phyddle, )) + geom_point()
 
 print("correlations")
-cor(probs_df$phyddle[1:(2500*49)], probs_df$`Bayesian inference`[1:(2500*49)])
-cor(probs_df$phyddle[(2500*49 + 1):nrow(probs_df)], probs_df$`Bayesian inference`[(2500*49 + 1):nrow(probs_df)])
+notNA <- which(! is.na(probs_df$`Bayesian inference`[1:(2500*49)]))
+cor(probs_df$phyddle[notNA], probs_df$`Bayesian inference`[notNA])
+notNA <- which(! is.na(probs_df$`Bayesian inference`[(2500*49 + 1):nrow(probs_df)])) + 2500 *49
+cor(probs_df$phyddle[notNA], probs_df$`Bayesian inference`[notNA])
 
 
 plot2 <- ggplot(probs_df[reorder[1:500],], aes(x =`Bayesian inference`, y = phyddle, color = model,)) + 
   geom_point(size = .1) + theme_classic()+ theme(legend.position = "none") + 
   labs(x = "Bayesian inference\n")
 
+png(paste(savedir, "bisse_c.png", sep = ""), width =5, height = 3, units ="in", res = 500)
+ggplot(probs_df[reorder[1:500],], aes(x =`Bayesian inference`, y = phyddle, color = model,)) + 
+  geom_point(size = .1) + theme_classic()+
+  labs(x = "Bayesian inference\n") + coord_fixed(ratio = 1)
+dev.off()
+
+png(paste(savedir, "bisse_c2.png", sep = ""), width =5, height = 3, units ="in", res = 500)
+ggplot(probs_df[reorder[1:500],], aes(x =`Bayesian inference`, y = phyddle, color = model,)) + 
+  geom_point(size = .1) + theme_classic()+coord_fixed(ratio = 1) +
+  labs(x = "Bayesian inference\n") + geom_abline(intercept = bisse_int , slope = 1, color = cols[1], linetype = 2) + geom_abline(intercept = -bisse_int , slope = 1, color = cols[1], linetype = 2) + 
+  geom_abline(intercept = mk_int , slope = 1, color = cols[2], linetype = 2) + geom_abline(intercept = -mk_int , slope = 1, color = cols[2], linetype = 2) 
+dev.off()
+
 probs_df$diff <- probs_df$phyddle - probs_df$`Bayesian inference`
 
+probs_df <- probs_df[-which(is.na(probs_df$`Bayesian inference`)), ]
 plot3 <- 
   ggplot(probs_df, aes(x = diff, fill = model)) + 
   geom_histogram(data=subset(probs_df, model == "Markov"), aes(y = after_stat(count / sum(count))) ,   bins = 100, alpha = .7) + 
@@ -266,8 +294,8 @@ df <- data.frame (model, diff)
 
 
 mean(abs(probs_df[1:(dim(probs_df)[1]/2), 4]) > .5)
-mean(abs(probs_df[1:(dim(probs_df)[1]/2), 4]) > .2585)
-mk_int <- .2585
+mean(abs(probs_df[1:(dim(probs_df)[1]/2), 4]) > .255)
+mk_int <- .255
 mean(abs(probs_df[((dim(probs_df)[1]/2)+1):dim(probs_df)[1], 4]) > .5)
 mean(abs(probs_df[((dim(probs_df)[1]/2)+1):dim(probs_df)[1], 4]) > .386)
 bisse_int <- .386
@@ -293,18 +321,7 @@ ggplot(correct_by_height_df, aes(avg_height, avg_correct, color = size_range, pc
   )
 dev.off()
 
-png(paste(savedir, "bisse_c.png", sep = ""), width =5, height = 3, units ="in", res = 500)
-ggplot(probs_df[reorder[1:500],], aes(x =`Bayesian inference`, y = phyddle, color = model,)) + 
-  geom_point(size = .1) + theme_classic()+
-  labs(x = "Bayesian inference\n") + coord_fixed(ratio = 1)
-dev.off()
 
-png(paste(savedir, "bisse_c2.png", sep = ""), width =5, height = 3, units ="in", res = 500)
-ggplot(probs_df[reorder[1:500],], aes(x =`Bayesian inference`, y = phyddle, color = model,)) + 
-  geom_point(size = .1) + theme_classic()+coord_fixed(ratio = 1) +
-  labs(x = "Bayesian inference\n") + geom_abline(intercept = bisse_int , slope = 1, color = cols[1], linetype = 2) + geom_abline(intercept = -bisse_int , slope = 1, color = cols[1], linetype = 2) + 
-  geom_abline(intercept = mk_int , slope = 1, color = cols[2], linetype = 2) + geom_abline(intercept = -mk_int , slope = 1, color = cols[2], linetype = 2) 
-dev.off()
 
 png(paste(savedir, "bisse_b.png", sep = ""), width =5, height = 3, units ="in", res = 500)
 ggplot(probs_df, aes(x = diff, fill = model)) + 

@@ -1,3 +1,4 @@
+library(ggplot2)
 dir <- "~/asr_phyddle/4_tip/3_bin/"
 truth <- read.csv(paste(dir, "truth.csv", sep = ""))
 est <- read.csv(paste(dir, "est.csv", sep = ""))

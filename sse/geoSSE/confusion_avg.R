@@ -150,3 +150,27 @@ ggplot(data = both_method, aes(y = inf_state , x = true_state, fill = proportion
   #geom_text(aes(label = paste("",Freq,",",Perc,"%")), color = 'red', size = 8) +
   theme_light()  + theme(axis.text.x = element_text(angle = 45, vjust = .95, hjust=1), axis.text.y = element_text(angle = 45, vjust = 0.5, hjust=1))
 dev.off()
+
+## Are you confidently wrong?
+prob_true <- function(row){
+  #print(row)
+  true_state <- row[ 9]
+  row[true_state + 1] < .05
+}
+#tmp <- cbind(est[, col], truth[, i])
+#tmp[1,]
+#prob_true(tmp[1, ])
+conf_wrong <- matrix(NA, nrow = dim(truth)[1], ncol= n_node)
+
+for (i in 1: n_node) {
+  col <- ((i-1) * 8 + 1):(i *8)
+  tmp <- cbind(est[, col], truth[, i])
+  conf_wrong[, i] <- apply(tmp, 1, prob_true)
+}
+
+# double check you are comparing the right states
+for (i in 0:7) {
+  state <- which(truth == i)
+  print(mean(conf_wrong[state]))  
+}
+mean (conf_wrong)
