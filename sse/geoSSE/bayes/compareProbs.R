@@ -5,7 +5,14 @@ est_p <- as.matrix(est_p)
 
 phyddle_mat <- matrix(NA, ncol = 8, nrow = 0) 
 bayes_mat <- matrix(NA, ncol = 8, nrow = 0) 
+notConverged <- read.csv("notConverged", header = TRUE)
+notConverged <- notConverged[,2]
+
 for (i in 1:2500) {
+
+	if ( i %in% notConverged) {
+		next
+	}
 
 	file <- paste("parseOutput/", i, "point_est.txt", sep = "")
 	file2 <- paste("parseRb/node_index_", i, sep = "")
@@ -28,6 +35,7 @@ for (i in 1:2500) {
 	rb_reorder <- est_rb[order, -1 ]
 	bayes_mat <- rbind(bayes_mat, rb_reorder)
 
+
 	row <- est_p[i, 2:ncol(est_p)]
 	est_p_one <- matrix(row, byrow = TRUE, nrow = 49, ncol = 8)
 	phyddle_mat <- rbind(phyddle_mat, est_p_one)
@@ -35,11 +43,8 @@ for (i in 1:2500) {
 	#break
 
 }
-#dim(bayes_mat)
-#dim(phyddle_mat)
 method_diff <- phyddle_mat - bayes_mat 
 write.csv(method_diff, "difference_phy-bayes.csv")
-#colnames(method_diff)
 
 library(tidyr)
 

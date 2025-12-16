@@ -1,5 +1,7 @@
 comb_All <- matrix(NA, ncol = 4, nrow = 0)
 #for (i in 1:100) {
+notConverge <- read.csv("notConverged", header = TRUE)
+notConverge <- notConverge[2]
 for (i in 1:2500) {
 
 	file <- paste("parseOutput/", i, "point_est.txt", sep = "")
@@ -9,6 +11,10 @@ for (i in 1:2500) {
 		print(paste("problem", i))
 		q()
 	} 
+	if (i %in% notConverge) {
+		print(paste("skipping", i))
+		next
+	}
 
 	# Matches node names to indeces used in revbayes
 	mapping <- read.csv(paste("parseRb/node_index_", i, sep = ""))
@@ -31,9 +37,6 @@ for (i in 1:2500) {
 	comb_All <- rbind(comb_All, all)
 	
 }
-colnames(comb_All)[3] <- "est"
-colnames(comb_All)[5] <- "true"
-print(comb_All)
 
 df <- comb_All[, c(3,5)]
 df$true <- as.factor(df$true)
