@@ -3,6 +3,9 @@ phyddle -s SFTEP &> outAll
 mv train train_first_train
 mv estimate estimate_first_train
 
+# Train a second network
+phyddle -s TE &> outSecond
+
 # Simulate dataset
 phyddle -s S --sim_dir accuracy -c config_empirical.py
 
