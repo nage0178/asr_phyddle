@@ -69,12 +69,12 @@ The plots can be created with `plot_prob.R` and `heatMap.R`. The accuracies are 
 
 ## Markov model of a binary character
 Navigate to the directory, `asr_phyddle/mk_binary`. 
-Then, run the following line to prepare the control files for phyddle
+Then, run the following line to prepare the config files for phyddle
 ```
 ./prepareFiles.sh
 ```
-This will create 6 config.py files, which correspond to fixed and variable size trees of up to 50, 100, or 200 tips. 
-Then, run a phyddle analysis with each of the 6 config.py files. 
+This will create 6 `config.py` files, which correspond to fixed and variable size trees of up to 50, 100, or 200 tips. 
+Then, nagivate to each directory and run a phyddle analysis with each of the 6 `config.py` files. 
 For example, 
 ```
 cd fix/50
@@ -82,11 +82,12 @@ phyddle -s SFTEP
 ```
 Once all analyses have been completed, run the script `runAllSummary.sh` from both the `fix` and `var` directories. 
 
-Phyddle should also be run in the `fix/50_unequal_q` directory. 
+Phyddle should also be run in the `fix/50_unequal_q` directory, using the same command as above.
 These runs are for comparison with the BiSSE model in the next section. 
 
 Start by navigating to the `asr_phyddle/mk_binary` directory. 
-Then, 
+Then, run the script to summarize the outputs. 
+This will generate several of files in each of the analysis directories.
 ```
 cd fix 
 ../runAllSummary.sh
@@ -104,7 +105,7 @@ To run the Bayesian analyses, first create the input files.
 ```
 ./mkAllNexus.sh
 ```
-Then, run the RevBayes analyses. This infer ancestral states for the first 2500 simulated tree for each of the 6 datasets. 
+Then, run the RevBayes analyses. This scripts infers ancestral states for the first 2500 simulated tree for each of the 6 datasets. 
 Two MCMCs are run for each tree. 
 This will take hours and is parallelized. 
 
@@ -131,7 +132,7 @@ Once the runs are completed, the convergence can be assessed.
 R convergence.R
 ```
 The plots can be recreated using `makeAllPlots.R`.
-The paths the plots are saved to will need to be updated to run properly. 
+The paths the plots are saved to will need to be updated for the script to run without error. 
 
 ## SSE models
 ### BiSSE
@@ -156,7 +157,7 @@ R convergence.R
 ```
 The RevBayes path in `runSetRb.sh` may need to be updated to match the location of the `rb` executable. 
 
-The simple estimator from the supplement, which estimates the ancestral state of a node to be the state that is most frequent in its descendants can be reproduced with `infer_by_daughter.R`. 
+The simple estimator from the supplement, which estimates the ancestral state of a node to be the state that is most frequent in its descendants, can be reproduced with `infer_by_daughter.R`. 
 
 The final plots can be reproduced with `height_plot.R`.
 
