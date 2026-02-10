@@ -15,7 +15,8 @@ head -1 estimate/out.test_true.labels_cat.csv  | sed 's/,/\n/g' > headerTrueLab
 head -1 estimate/out.test_est.labels_cat.csv | sed 's/,/\n/g' > headerEstLab
 
 length=$(wc -l estimate/out.test_true.labels_cat.csv | awk '{print $1}')
-echo $length
+#echo $length
+length=2501
 for ((line2=2; line2<=length; line2++))
 do
 	echo $line2

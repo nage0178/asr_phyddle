@@ -1,5 +1,5 @@
 size=2500
-dir=../../processScripts/
+dir=../../../processScripts/
 #dir=/storage/anna/asr_phyddle/processScripts/
 for tips in 50 100 200
 do 
@@ -7,6 +7,5 @@ do
 	${dir}findTimes.sh $tips $size
 	${dir}process.sh $tips $size
 	${dir}parseParallel.sh $tips $size
-	${dir}mlParseParallel.sh $tips $size 
 	cd ../
 done

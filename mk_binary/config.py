@@ -19,8 +19,10 @@ args = {
     'sim_command'       : 'Rscript ../../sim_tree.R nlower nupper', # exact command string, argument is output file prefix
 
     'start_idx'          : 1,                         # Start index for simulated training replicates
-    'end_idx'            : 50000,                      # End index for simulated training replicates
-    'sim_batch_size'     : 500,                        # Number of replicates per simulation command
+    'end_idx'            : 250000,                      # End index for simulated training replicates
+    'sim_batch_size'     : 2500,                        # Number of replicates per simulation command
+
+    'num_proc'           : 100,
 
     #'use_cuda'           : 'F',
     #-------------------------------#

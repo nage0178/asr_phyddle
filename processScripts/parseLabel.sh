@@ -13,7 +13,7 @@ echo >> new_test_est.csv
 head -1 estimate/out.test_true.labels_cat.csv  | sed 's/,/\n/g' > headerTrueLab
 head -1 estimate/out.test_est.labels_cat.csv | sed 's/,/\n/g' > headerEstLab
 
-for line2 in $(tail +2 estimate/out.test_true.labels_cat.csv  )
+for line2 in $(tail +2 estimate/out.test_true.labels_cat.csv  | head -2500 )
 #for line2 in $(tail +2 estimate/out.test_true.labels_cat.csv )
 do
 	idx=$(echo $line2 | awk -F , '{print $1}')

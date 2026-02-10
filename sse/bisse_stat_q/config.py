@@ -23,9 +23,9 @@ args = {
     'start_idx'          : 1,                         # Start index for simulated training replicates
     #'start_idx'          : 2501,                         # Start index for simulated training replicates
     #'end_idx'            : 3000,                      # End index for simulated training replicates
-    'end_idx'            : 50000,                      # End index for simulated training replicates
+    'end_idx'            : 250000,                      # End index for simulated training replicates
     #'sim_batch_size'     : 50,                        # Number of replicates per simulation command
-    'sim_batch_size'     : 1000,                        # Number of replicates per simulation command
+    'sim_batch_size'     : 10000,                        # Number of replicates per simulation command
 
     #-------------------------------#
     # Format Step settings          #

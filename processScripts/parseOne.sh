@@ -9,7 +9,7 @@ oldLine=$idx
 newEstLine=$idx
 
 # This relies on this ordering matching the label ordering in the file
-for line in $( tail +2 simulate/out.${idx}.node_labels.csv | sed 's/node//g' | sed 's/,/ /g' | sort -k 1  -n | sed 's/^/node/g' | sed 's/ /,/g')
+for line in $( tail +2 simulate/out.${idx}.node_labels.csv | head -2500 | sed 's/node//g' | sed 's/,/ /g' | sort -k 1  -n | sed 's/^/node/g' | sed 's/ /,/g')
 do
 	original=$(echo $line |awk -F ,  '{print $1}')
 	new=$(echo $line | awk -F ,  '{print $2}')

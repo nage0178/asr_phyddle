@@ -53,26 +53,6 @@ find_stationary <- function (birth, death, state) {
 
 }
 
-jitter.pars <- function(pars) {
-	multfac <- rep(0, 6) 
-
-        log_birth = runif(1, -2, 0)
-        multfac[1] = 10^log_birth
-
-        log_birth = runif(1, -2, 0)
-        multfac[2] = 10^log_birth
-
-        multfac[3]= min(multfac[1]) * 10^runif(n=1, -2, 0)
-        multfac[4]= min(multfac[2]) * 10^runif(n=1, -2, 0)
-
-        log_state_rate = runif(1,-3, 0)
-        multfac[5]= 10^log_state_rate
-
-        log_state_rate = runif(1,-3, 0)
-        multfac[6]= 10^log_state_rate
-
-	return(multfac)
-}
 
 # simulate each replicate
 for (i in 1:num_rep) {
@@ -175,59 +155,6 @@ for (i in 1:num_rep) {
 	agesProp <- t(agesProp)
 	write.csv(agesProp, file = age_prop_fn[i], quote= F, row.names =F)
 	
-	# Do not resimulate the file exists
-	#if (file.exists(asr_fn[i]) ) {
-	#        print(asr_fn[i])
-	#        next
-	#}
-
-	# Infer ancestral states
-	#if (rep_idx[i] <= 2500) {
-	#    print(rep_idx[i])
-	#    print("calculating MLE")
-    
-    	#	if (mean(state_sim) == 0 ||  mean(state_sim) == 1) {
-    	#	        asr_est_print <- matrix(state_sim[-1])
-
-    	#	} else {
-    	#		print(pars)
-    	#		lik.s <- make.bisse(res_sim$tree, state_sim)
-    	#		fit.s <- find.mle(lik.s, pars, method = "optim",  lower = 0, upper = 10, control = list( reltol = 1e-6))
-	#		print(fit.s$convergence)
-    	#		best.fit.s <- fit.s 
-    	#		best.lnL <- best.fit.s$lnLik
-    	#		fitParams <- array(c(best.lnL, best.fit.s$par))
-
-    	#	    	newPars <-pars
-    	#		for (j in 1:numStarts) {
-    	#		        print("Iteration")
-    	#		        print(j)
-    	#	    		print(format(fit.s$par, scientific = F ))
-    	#	    		newPars <- jitter.pars(pars)
-
-	#			fit.s <- find.mle(lik.s, newPars, method = "optim", lower = 0, upper = 10, control = list( reltol = 1e-6))
-    	#		        fitParms <- rbind(fitParams, c(lnL =fit.s$lnLik, fit.s$par))
-	#			print("convergence")
-	#			print(fit.s$convergence)
-
-    	#		        if (fit.s$convergence == 0 && fit.s$lnLik > best.lnL && !any(fit.s$par > 10)) {
-    	#		    	    print("improvement")
-    	#		    	    best.fit.s <- fit.s
-    	#		    	    best.lnL <- fit.s$lnLik
-
-    	#		        }
-    	#		}
-
-    	#		st.s <- t(asr.marginal(lik.s, coef(best.fit.s)))
-    	#		asr_est_print <- data.frame(cbind((st.s[, 2] > .5) * 1, st.s))
-    	#		#asr_est_print <- data.frame((asr_est$ancestral_states - 1))
-    	#		#
-    	#		print("final")
-    	#		print(best.fit.s$par)
-    	#	}
-    	#	rownames(asr_est_print) <- tree_sim$node.label
-    	#	write.table(asr_est_print, file = asr_fn[i], sep = ',', col.names =F, row.names =T, quote = F)
-    	#}
 }
 
 warnings()

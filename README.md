@@ -93,7 +93,7 @@ cd fix
 ../runAllSummary.sh
 
 cd 50_unequal_q/
-../runAllSummary.sh
+runAllSummary.sh
 
 cd ../../var
 ../runAllSummary.sh
@@ -125,6 +125,11 @@ The same steps should be repeated for the `fix/50_unequal_q/bayes`.
 ./mkAllNexus.sh
 ./runRbParallel.sh
 ./parseOutput.sh
+```
+
+To perform ASR on trees from a different test dataset on a network trained under broader conditions, navigate to the `mk_binary_var` directory and run the following.
+```
+./prepareSizeExp.sh
 ```
 
 Once the runs are completed, the convergence can be assessed. 

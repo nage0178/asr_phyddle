@@ -1,5 +1,5 @@
 size=2500
-dir=../../processScripts/
+dir=../../../processScripts/
 #dir=/storage/anna/asr_phyddle/processScripts/
 tips=50
 
