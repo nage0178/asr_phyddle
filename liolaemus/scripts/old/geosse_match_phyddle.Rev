@@ -1,0 +1,337 @@
+# load TensorPhylo plugin
+loadPlugin("TensorPhylo", "/home/anagel/tensorphylo/build/installer/lib/")
+
+IDX = "lio"
+
+# FILESYSTEM
+fp          = "./"
+dat_fp      = fp + "data/"
+out_fp      = fp + "output/"
+bg_fn       = dat_fp + "small_ranges.nex" #"kadua_range_n2.nex"
+phy_fn      = "phyddle/empirical/lio.1.form.tre" 
+#phy_fn      = dat_fp + "small_tree.tre" 
+lbl_fn      = dat_fp + "range_label.txt"
+
+# PHYLOGENETIC DATA
+phy         <- readTrees(phy_fn)[1]
+tree_height <- phy.rootAge()
+taxa        = phy.taxa()
+num_taxa    = taxa.size()
+
+# BIOGEOGRAPHIC DATA
+bg_01       = readDiscreteCharacterData(bg_fn)
+
+# To see where each lineage is, we can do:     #
+bg_01.show()
+# Note how the biogeographic ranges are shown  #
+# as bit (present/absent in a region) patterns #
+
+num_regions = bg_01.nchar() # Thisis going to be 2
+num_ranges  = abs(2^num_regions - 1)
+num_pairs   = num_regions^2 - num_regions # 2^2 - 2 = 2
+bg_dat      = formatDiscreteCharacterData(bg_01, format="GeoSSE", numStates=num_ranges)
+
+matrix_fp = "output/"  + IDX + "_matrix.txt"
+tree <- phy
+   write("parent\tchild1\tchild2\n", file = matrix_fp)
+type(tree.nnodes())
+
+for(i in 1:(tree.nnodes()))
+{
+   if (tree.isInternal(i)){
+	c1= tree.child(i, 1)
+	c2 = tree.child(i, 2)
+#	print(i, c1, c2)
+        write(i, c1, c2, "\n", append =TRUE, file=matrix_fp)
+    }
+}
+
+seed(1)
+rate_param = 1/.1
+# MODEL RATES
+
+## WITHIN-REGION SPECIATION
+# Anna: I think we want to not use this base rate set up bc that won't match the
+# priors I'm using 
+#rho_w ~ dnExp(1)  # base rate
+
+# We want to generate region-specific within-region #
+# speciation rates                                  #
+#                                                   #
+# First we produce fractions (that add up to 1.0),  #
+# one per region.                                   #
+
+#m_w_simplex ~ dnDirichlet(rep(1, num_regions))
+
+# Then we multiply each fraction by the number of   #
+# regions. The outcome are numbers, one per region, #
+# that can be used to scale the base rate. This     #
+# procedure is just a fancy trick to keep these     #
+# scalers between 0 and num_regions                 #
+
+#m_w := m_w_simplex * num_regions
+#r_w := rho_w * m_w
+
+# Michael's example
+N = 2
+# I think this is covered below
+#for (i in 1:N) {
+#    r_w[i] ~ dnExp(rate_param)
+#}
+
+## EXTINCTION
+#rho_e ~ dnExp(1)
+#m_e_simplex ~ dnDirichlet(rep(1,num_regions))
+#m_e := m_e_simplex * num_regions
+#r_e := rho_e * m_e
+
+# This is 3
+for (i in 1:num_ranges) {
+    mu[i] <- 0.0
+
+    # This is 2
+    if (i <= num_regions) {
+
+        #mu[i] := r_e[i]
+        mu[i] ~ dnExp(rate_param) 
+	r_e[i] := mu[i]
+    }
+}
+
+
+
+## BETWEEN-REGION SPECIATION- S_AB
+#rho_b ~ dnExp(rate_param)
+## This is just 1 
+##m_b_simplex ~ dnDirichlet(rep(1, num_pairs/2))  # (num_pairs is created at the top!)
+#m_b_idx = 1
+#
+## 1:2 
+#for (i in 1:num_regions) {
+#    #m_b[i][i] <- 0.0
+#    r_b[i][i] <- 0
+#
+#    for (j in 1:num_regions) {
+#        #if (i < j) {
+##1 * 2? #matrix 0 2 , 2, 0 
+#        #    m_b[i][j] := abs(m_b_simplex[m_b_idx] * num_pairs)
+#        #    m_b[j][i] := abs(m_b_simplex[m_b_idx] * num_pairs)
+#        #    m_b_idx += 1
+#        #}
+#
+#        #r_b[i][j] := rho_b * m_b[i][j]
+#        r_b[i][j] := rho_b 
+#    }
+#}
+
+## DISPERSAL
+#rho_d ~ dnExp(1)
+#m_d_simplex ~ dnDirichlet(rep(1,num_pairs))
+#m_d_idx = 1
+#
+#for (i in 1:num_regions) {
+#    m_d[i][i] <- 0.0
+#
+#    for (j in 1:num_regions) {
+#        if (i != j) {
+#            m_d[i][j] := abs(m_d_simplex[m_d_idx++] * num_pairs)
+#        }
+#
+#        r_d[i][j] := rho_d * m_d[i][j]
+#    }
+#}
+
+
+# Michael's example
+for (i in 1:N) {
+    r_d[i][i] <- 0.0
+  for (j in 1:N) {
+    #r_d[i][j] <- 1.0
+    if (i != j) {
+      r_d[i][j] ~ dnExp(rate_param)
+    }
+  }
+}
+disp_A_B := r_d[1][2]
+disp_B_A := r_d[2][1]
+
+print("anagenetic")
+## ANAGENETIC RATE MATRIX
+Q_bg := fnBiogeographyRateMatrix(
+    dispersalRates=r_d,
+    extirpationRates=r_e,
+    maxRangeSize=num_regions
+)
+print(Q_bg)
+
+# We have 3 states, 'A', 'B', and 'AB', that should have #
+# both a numerical and a bit-pattern representations     #
+#
+# We can check it by doing:                              #
+
+Q_bg.getStateDescriptions()[1] # for state 1, '10' -> 'A'
+Q_bg.getStateDescriptions()[2] # for state 2, '01' -> 'B'
+Q_bg.getStateDescriptions()[3] # for state 3, '11' -> 'AB'
+
+print("cladogenetic")
+
+###### From other script
+speciation_wide_sympatry[1] ~ dnExp(rate_param) #dnLognormal(rate_mean, rate_sd)
+speciation_wide_sympatry[2] ~ dnExp(rate_param) #dnLognormal(rate_mean, rate_sd)
+mvi = 1
+mv[mvi++] = ( mvSlide( speciation_wide_sympatry[1], weight=4 ) )
+mv[mvi++] = ( mvSlide( speciation_wide_sympatry[2], weight=4 ) )
+
+# Define the widespread sympatric cladogenetic events:
+clado_events[1] = [0, 0, 0] # 01 -> 01, 01
+clado_events[2] = [1, 1, 1] # 10 -> 10, 10
+
+# and assign each the same speciation rate:
+speciation_rates[1] := speciation_wide_sympatry[1]/2
+speciation_rates[2] := speciation_wide_sympatry[2]/2
+
+# Subset sympatry is where one daughter lineage inherits the full
+# ancestral range but the other lineage inherits only a single region.
+# AB-> A,AB or AB, A 
+# or   B,AB or AB, B
+speciation_sub_sympatry[1] := speciation_wide_sympatry[1] #~ dnExp(rate_param) #dnLognormal(rate_mean, rate_sd)
+speciation_sub_sympatry[2] := speciation_wide_sympatry[2] #~ dnExp(rate_param) #dnLognormal(rate_mean, rate_sd)
+
+# Define the subset sympatry events and assign each a speciation rate:
+clado_events[3] = [2, 2, 0] # 11 -> 11, 01
+clado_events[4] = [2, 0, 2] # 11 -> 01, 11
+clado_events[5] = [2, 2, 1] # 11 -> 11, 10
+clado_events[6] = [2, 1, 2] # 11 -> 10, 11
+speciation_rates[3] := speciation_sub_sympatry[1]/2
+speciation_rates[4] := speciation_sub_sympatry[1]/2
+speciation_rates[5] := speciation_sub_sympatry[2]/2
+speciation_rates[6] := speciation_sub_sympatry[2]/2
+
+# Allopatric cladogenesis is when the two daughter lineages
+# split the ancestral range:
+speciation_allopatry ~ dnExp (rate_param) #dnLognormal(rate_mean, rate_sd)
+mv[mvi++] = ( mvSlide( speciation_allopatry, weight=4 ) )
+
+# Define the allopatric events:
+clado_events[7] = [2, 0, 1] # 11 -> 01, 10
+clado_events[8] = [2, 1, 0] # 11 -> 10, 01
+speciation_rates[7] := speciation_allopatry/2
+speciation_rates[8] := speciation_allopatry/2
+
+# Now let's create a deterministic variable to monitor the overall speciation rate
+total_speciation := sum(speciation_rates)
+# Finally, we construct the cladogenetic speciation rate
+# matrix from the cladogenetic event types and the speciation rates
+clado_matrix := fnCladogeneticSpeciationRateMatrix(clado_events, speciation_rates, 3)
+
+# let's view the cladogenetic matrix to see if we have set it up correctly:
+###### End other script
+    #speciation_rates=[r_w,r_b],
+## CLADOGENETIC RATE MATRIX
+#clado_map := fnBiogeographyCladoEventsBD(
+#    speciation_rates=[rho_w,rho_b],
+#    within_region_features=m_w,
+#    between_region_features=m_b,
+#    max_range_size=num_regions,
+#    max_subrange_split_size=num_regions
+#)
+
+omega := clado_matrix.getCladogeneticProbabilityMatrix()
+lambda := clado_matrix.getSpeciationRateSumPerState()
+#lambda := clado_map.getSpeciationRateSumPerState()
+#omega := clado_map.getCladogeneticProbabilityMatrix()
+
+# Sanity check: let us look at the within-region         #
+# speciation rates inside 'clado_map' and compare them   #
+# to the scaled rates we created above                   #
+
+# within-A speciation rate
+#clado_matrix.getRate(0,0,0) == r_w[1] # should be TRUE
+#clado_map.getRate(0,0,0) == r_w[1] # should be TRUE
+#r_w[1] == lambda[1] # should be TRUE
+
+# within-B speciation rate
+#clado_matrix.getRate(1,1,1) == r_w[2] # should be TRUE
+#r_w[2] == lambda[2] # should be TRUE
+
+## PI (equilibrium or stationary frequencies)
+pi_base <- rep(1,num_ranges)
+pi <- simplex(pi_base)
+
+# TREE
+timetree ~ dnGLHBDSP(
+    rootAge     = tree_height,
+    lambda      = lambda,
+    mu          = mu,
+    eta         = Q_bg,
+    omega       = omega,
+    pi          = pi,
+    rho         = 1,
+    condition   = "time",
+    taxa        = taxa,
+    nStates     = num_ranges,
+    nProc       = 1
+)
+timetree.clamp(phy)
+timetree.clampCharData(bg_dat)
+
+# MCMC SETUP
+n_gen = 10000
+n_burn = 1000
+printgen = 10
+
+print("moves")
+# MCMC MOVES
+#mv[mvi++] = mvScale(r_w[1], weight=1)
+#mv[mvi++] = mvScale(r_w[2], weight=1)
+mv[mvi++] = mvScale(mu[1], weight=1)
+mv[mvi++] = mvScale(mu[2], weight=1)
+#mv[mvi++] = mvScale(rho_b, weight=1)
+mv[mvi++] = mvScale(r_d[1][2], weight=1)
+mv[mvi++] = mvScale(r_d[2][1], weight=1)
+#mv[mvi++] = mvSimplex(m_e_simplex, weight=m_e.size())
+#mv[mvi++] = mvSimplex(m_w_simplex, weight=m_w.size())
+#mv[mvi++] = mvSimplex(m_b_simplex, weight=m_b_simplex.size())
+#mv[mvi++] = mvSimplex(m_d_simplex, weight=m_d_simplex.size())
+
+# MCMC MONITORS
+mni = 1
+mn[mni++] = mnScreen(printgen=printgen)
+mn[mni++] = mnModel(printgen=printgen, filename=out_fp + IDX +  "_model.log")
+mn[mni++] = mnJointConditionalAncestralState(glhbdsp=timetree, tree=timetree,
+                                             printgen=printgen, withTips=true, withStartStates=true,
+                                             type="NaturalNumbers", filename=out_fp + IDX + "_states.log")
+mn[mni++] = mnStochasticCharacterMap(glhbdsp=timetree, printgen=printgen, filename=out_fp + IDX + "_stoch.log")
+
+# STATE LABELS
+write("index,range\n", file=lbl_fn)
+state_labels = Q_bg.getStateDescriptions()
+for (i in 1:state_labels.size()) {
+    write( (i-1), ",", state_labels[i], "\n", file=lbl_fn, append=true, separator="")
+}
+
+# MCMC START
+mdl = model(clado_matrix)
+# Ths line causes problems
+ch = mcmc(mv, mn, mdl,nruns=2, combine="mixed")
+ch.burnin(n_burn, tuningInterval=50)
+ch.run(n_gen)
+
+# ANCESTRAL STATES
+f_burn = 0.1
+x_stoch = readAncestralStateTrace(file=out_fp + IDX + "_stoch.log")
+x_states = readAncestralStateTrace(file=out_fp + IDX + "_states.log")
+summarizeCharacterMaps(x_stoch,timetree,file=out_fp + IDX + "_events.tsv",burnin=f_burn)
+state_tree = ancestralStateTree(tree=timetree,
+                   ancestral_state_trace_vector=x_states,
+                   include_start_states=true,
+                   file=out_fp + "ase.tre",
+                   summary_statistic="MAP",
+                   reconstruction="marginal",
+                   burnin=f_burn,
+                   nStates=3,
+                   site=1)
+writeNexus(state_tree, filename=out_fp  + IDX + "_ase.tre")
+
+print("DONE")
+q()
