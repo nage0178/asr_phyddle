@@ -49,15 +49,6 @@ args = {
     'tree_encode'       : 'extant',         # use model with serial or extant tree
     'brlen_encode'      : 'height_brlen',   # how to encode phylo brlen? height_only or height_brlen
     'char_encode'       : 'integer',        # how to encode discrete states? one_hot or integer
-    #'param_est'         : {                 # model parameters to predict (labels)
-    #                        'log_base_w'          : 'num',
-    #                        'log_base_e'          : 'num',
-    #                        'log_base_d'          : 'num',
-    #                        'log_base_b'          : 'num',
-    #                        'exp_scalar_w'        : 'num',
-    #                        'exp_scalar_e'        : 'num',
-    #                        'exp_scalar_d_j'      : 'num'
-    #                        },
     'asr_est'           : 'T', 
     'asr_rotate'        : {3 : 4,
                            4 : 3,
@@ -78,12 +69,13 @@ args = {
     # Train Step settings           #
     #-------------------------------#
     'num_epochs'        : 200,              # number of training intervals (epochs)
+    'early_stop_rule'   :'consecutive', 
     'prop_test'         : 0.05,             # proportion of sims in test dataset
     'prop_val'          : 0.05,             # proportion of sims in validation dataset
-    'prop_cal'          : 0.20,             # proportion of sims in CPI calibration dataset
-    'cpi_coverage'      : 0.80,             # coverage level for CPIs
-    'cpi_asymmetric'    : 'T',              # upper/lower ('T') or symmetric ('F') CPI adjustments
-    'trn_batch_size'    : 2048,             # number of samples in each training batch
+    #'prop_cal'          : 0.20,             # proportion of sims in CPI calibration dataset
+    #'cpi_coverage'      : 0.80,             # coverage level for CPIs
+    #'cpi_asymmetric'    : 'T',              # upper/lower ('T') or symmetric ('F') CPI adjustments
+    #'trn_batch_size'    : 2048,             # number of samples in each training batch
     'loss_numerical'    : 'mae',            # loss function for learning (real-valued) targets
     'optimizer'         : 'adam',           # optimizer for network weight/bias parameters
 
@@ -100,5 +92,4 @@ args = {
     'plot_aux_color'        : 'green',      # plot color for input auxiliary data
     'plot_label_color'      : 'orange',     # plot color for labels (params)
     'plot_emp_color'        : 'black'      # plot color for estimated data/values
-    #'plot_pca_noise'        : 0.01          # Add noise to PCA plot to dampen contrast from point values
  }
