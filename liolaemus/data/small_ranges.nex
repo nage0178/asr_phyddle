@@ -1,0 +1,61 @@
+#NEXUS
+[Data written by write.nexus.data.R, Wed May 10 11:00:21 2023]
+BEGIN DATA;
+  DIMENSIONS NTAX=52 NCHAR=2;
+  FORMAT DATATYPE=STANDARD MISSING=? GAP=- INTERLEAVE=NO symbols="0123456789";
+  MATRIX
+    Liolaemus_abaucan                11
+    Liolaemus_albiceps               10
+    Liolaemus_anomalus               01
+    Liolaemus_azarai                 01
+    Liolaemus_boulengeri             10
+    Liolaemus_calchaqui              10
+    Liolaemus_canqueli               10
+    Liolaemus_chacoensis             01
+    Liolaemus_chehuachekenk          10
+    Liolaemus_crepuscularis          10
+    Liolaemus_cuyanus                01
+    Liolaemus_cuyumhue               10
+    Liolaemus_darwinii               01
+    Liolaemus_donosobarrosi          01
+    Liolaemus_espinozai              10
+    Liolaemus_fitzingerii            10
+    Liolaemus_goetschi               10
+    Liolaemus_grosseorum             11
+    Liolaemus_hermannunezi           10
+    Liolaemus_inacayali              10
+    Liolaemus_irregularis            10
+    Liolaemus_josei                  11
+    Liolaemus_koslowskyi             01
+    Liolaemus_laurenti               01
+    Liolaemus_lavillai               10
+    Liolaemus_lentus                 01
+    Liolaemus_loboi                  10
+    Liolaemus_lutzae                 01
+    Liolaemus_mapuche                10
+    Liolaemus_martorii               10
+    Liolaemus_melanops               10
+    Liolaemus_morenoi                10
+    Liolaemus_multimaculatus         11
+    Liolaemus_occipitalis            01
+    Liolaemus_olongasta              01
+    Liolaemus_ornatus                10
+    Liolaemus_pseudoanomalus         01
+    Liolaemus_puelche                01
+    Liolaemus_quilmes                11
+    Liolaemus_riojanus               01
+    Liolaemus_rothi                  10
+    Liolaemus_sagei                  10
+    Liolaemus_salinicola             01
+    Liolaemus_scapularis             11
+    Liolaemus_senguer                10
+    Liolaemus_sitesi                 10
+    Liolaemus_tehuelche              10
+    Liolaemus_telsen                 10
+    Liolaemus_tromen                 10
+    Liolaemus_uspallatensis          10
+    Liolaemus_wiegmannii             01
+    Liolaemus_xanthoviridis          10
+  ;
+END;
+
