@@ -20,8 +20,7 @@ args = {
     'sim_command'       : 'Rscript sim_tree.R 50 50', # exact command string, argument is output file prefix
 
     'start_idx'          : 1,                         # Start index for simulated training replicates
-    #'end_idx'            : 2500,                      # End index for simulated training replicates
-    'end_idx'            : 50000,                      # End index for simulated training replicates
+    'end_idx'          : 250000,                         # Start index for simulated training replicates
     'sim_batch_size'     : 5000,                        # Number of replicates per simulation command
     #'sim_batch_size'     : 50,                        # Number of replicates per simulation command
 
@@ -40,6 +39,12 @@ args = {
     'min_num_taxa'       : 50,                   # Minimum number of taxa allowed when formatting
     'max_num_taxa'       : 50,                  # Maximum number of taxa allowed when formatting
     'shuffle_test'       : 'F', 
+
+    'prop_test' : .05, 
+    'prop_val' : .05, 
+    'num_epochs' : 200, 
+    'num_early_stop' : 3, 
+    'early_stop_rule': 'consecutive', 
 
     #-------------------------------#
     # Train                         #
