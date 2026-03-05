@@ -15,8 +15,7 @@ colnames(prob_by_node) <- c("node_number", "probability_correct", "n_tips", "siz
 for (dir in dirs) {
   truth <- read.csv(paste(dir, "truth.csv", sep = ""))
   est <- read.csv(paste(dir, "est.csv", sep = ""))
-  ml <- read.csv(paste(dir, "ml_asr.csv", sep = ""), header = FALSE)
-  
+
   if (  grepl("fix", dir, ignore.case = FALSE)) {
     fix <- TRUE
   } else {
@@ -24,22 +23,18 @@ for (dir in dirs) {
   }
   
   # Reordered plots
-  ml_reorder <- read.csv(paste(dir, "ml_est_reorder.csv", sep = ""))
   est_phyddle <- read.csv(paste(dir, "estimate/out.test_est.labels_cat.csv", sep = ""))
+  est_phyddle <- est_phyddle[1:2500, ]
   true_phyddle <- read.csv(paste(dir, "estimate/out.test_true.labels_cat.csv", sep = ""))
+  true_phyddle <- true_phyddle[1:2500, ]
   
   nstates <- dim(truth)[2] - 1 
-  
-  results <-matrix(0, nrow = nstates, ncol = 3)
-  results_phyd <-matrix(0, nrow = nstates, ncol = 3)
   
   # Binary estimates
   bin_est <- matrix(NA, nrow = dim(truth)[1], ncol = dim(truth)[2])
   prob <- matrix(NA, nrow = dim(truth)[1], ncol = dim(truth)[2] -1)
   bin_phy <- matrix(NA, nrow = dim(truth)[1], ncol = dim(truth)[2] -1)
-  
-  colnames(results) <- c("DL", "ML", "DL_ML")
-  colnames(results_phyd) <- c("DL", "ML", "DL_ML")
+
   
   for (i in c(1:nstates)) {
     colZero <- 2+(i-1)*2
@@ -48,9 +43,6 @@ for (dir in dirs) {
     infer <- (est[,colOne] == apply(est[,colZero:colOne], 1, max)) * 1
     bin_est[, i+1] <- infer
     DL <-confusionMatrix( factor(infer), factor(truth[,i + 1]))
-    ML <- confusionMatrix(factor(ml[,i]), factor(truth[,i +1] ))
-  
-    results[i,] <- c(DL$overall[1], ML$overall[1], mean(ml[,i] == infer, na.rm = TRUE))
 
     nodeExists <- which(!is.na(est[,colOne]))
     
@@ -59,9 +51,7 @@ for (dir in dirs) {
     prob[, i] <- est_phyddle[,colOne]
     bin_phy[,i] <- 1 == factor(true_phyddle[,i + 1])
     DL <- confusionMatrix( factor(infer[nodeExists]), factor(true_phyddle[nodeExists,i + 1]))
-    ML <- confusionMatrix(factor(ml_reorder[,i+1]), factor(true_phyddle[,i +1] ))
-    
-    results_phyd[i,] <- c(DL$overall[1], ML$overall[1], mean(ml_reorder[,i+1] == infer) ) 
+
 
     prob_by_node[k, ] <- c(i, DL$overall[1], nstates + 1, fix)
     k <- k + 1
@@ -86,7 +76,7 @@ size_names <- c(
 panelC <- ggplot(prob_by_node_df, aes(node_number, probability_correct, color = size_range)) + geom_point(size = 0.5) + 
   facet_wrap(~n_tips, scales = "free_x", nrow = 1) + theme_classic()+  scale_color_manual(labels = c( "variable", "fixed"), values = cols) +
   labs(x = "phyddle node number",
-       y = "proportion correct", color = "tree size") 
+       y = "proportion correct", color = "tree size") +coord_cartesian( ylim = c(0.5, 1), expand = FALSE)
 pdf("~/asr_writing/manuscript/figs/accuracy_by_node.pdf", width =9, height = 3)
 print(panelC)
 dev.off()

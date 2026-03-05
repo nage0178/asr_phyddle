@@ -44,7 +44,9 @@ j <- 1
 k <- 1
 for (file in 1:length(true_file)) {
   est_phyddle <- read.csv(paste(wkdirs, est_file[file], sep = ""))
+  est_phyddle <- est_phyddle[1:2500, ]
   true_phyddle <- read.csv(paste(wkdirs, true_file[file], sep = ""))
+  true_phyddle <- true_phyddle[1:2500, ]
   
   if (  grepl("fix", est_file[file], ignore.case = FALSE)) {
     fix <- 1
@@ -83,16 +85,18 @@ prob_by_node_df$network_size <- as.factor(prob_by_node_df$network_size)
 prob_by_node_df$fixed<- as.factor(prob_by_node_df$fixed)
 
 prob_by_node_df <- prob_by_node_df[- which(prob_by_node_df$n_tips == 200), ]
-panelB <- ggplot(prob_by_node_df, aes(node_number, probability_correct, color = network_size, shape = fixed)) + geom_point(size = 1) + scale_shape_manual(labels = c( "variable", "fixed"), values = c(20, 5))+
+panelB <- ggplot(prob_by_node_df, aes(node_number, probability_correct, color = network_size, shape = fixed)) + geom_point(size = .75) + scale_shape_manual(labels = c( "variable", "fixed"), values = c(20, 5))+
   facet_wrap(~n_tips, scales = "free_x", nrow = 1) + theme_classic()+  
   labs(x = "Phyddle node number",
-       y = "proportion correct", color = "network max\ntree size", shape = "network\ntree size") 
+       y = "proportion correct", color = "network max\ntree size", shape = "network\ntree size") +coord_cartesian( ylim = c(0.5, 1), expand = FALSE)
+
 pdf("~/asr_writing/manuscript/figs/accuracy_fix_in_var.pdf", width =5, height = 3)
 print(panelB)
 dev.off()
 png("~/asr_writing/manuscript/figs/accuracy_fix_in_var.png", width =5, height = 3, units = "in", res = 500)
 print(panelB)
 dev.off()
+
 
 # ggplot(prob_by_node_df, aes(node_number, probability_correct, color = n_tips)) + geom_point(size = 0.5) + 
 #   facet_wrap(~network_size, scales = "free_x", nrow = 1) + theme_classic()+  
@@ -118,7 +122,7 @@ mean(prob_by_node_df$probability_correct[tip_100_net_100])
 tip_100_net_200 <- intersect(which(prob_by_node_df$n_tips == 100 ), which(prob_by_node_df$network_size == 200) )
 mean(prob_by_node_df$probability_correct[tip_100_net_200])
 
-tip_200_net_200 <-  intersect(intersect (which(prob_by_node_df$n_tips == 200 ), which(prob_by_node_df$network_size == 200)), which(prob_by_node_df$fixed == 1) )
-mean(prob_by_node_df$probability_correct[tip_200_net_200])
-tip_200_net_200 <-  intersect(intersect (which(prob_by_node_df$n_tips == 200 ), which(prob_by_node_df$network_size == 200)), which(prob_by_node_df$fixed == 0) )
-mean(prob_by_node_df$probability_correct[tip_200_net_200])
+# tip_200_net_200 <-  intersect(intersect (which(prob_by_node_df$n_tips == 200 ), which(prob_by_node_df$network_size == 200)), which(prob_by_node_df$fixed == 1) )
+# mean(prob_by_node_df$probability_correct[tip_200_net_200])
+# tip_200_net_200 <-  intersect(intersect (which(prob_by_node_df$n_tips == 200 ), which(prob_by_node_df$network_size == 200)), which(prob_by_node_df$fixed == 0) )
+# mean(prob_by_node_df$probability_correct[tip_200_net_200])

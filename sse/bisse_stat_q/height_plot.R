@@ -33,6 +33,8 @@ for (dir in dirs) {
   true_phyddle <- read.csv(paste(dir, "estimate/out.test_true.labels_cat.csv", sep = ""))
   notConverge <- read.csv(paste(dir, "bayes/notConverged", sep = ""), header = TRUE)
   notConverge <- notConverge[,2]
+  est_phyddle <- est_phyddle[1:2500, ]
+  true_phyddle <- true_phyddle[1:2500, ]
   
   bayes <- read.csv(paste(dir, "bayes/all_Bayes.csv", sep = ""))
   probZero <- which(is.na(bayes$anc_state_2))
@@ -164,7 +166,7 @@ plot1 <- ggplot(correct_by_height_df, aes(avg_height, avg_correct, color = size_
   scale_color_manual(
     values = cols, # Assign specific colors
     labels = c("BiSSE", "Markov") # Assign custom labels
-  )+ theme(legend.position = "none")
+  )+ theme(legend.position = "none")+coord_cartesian(xlim = c(0.0, 1.02), ylim = c(.5, 1), expand = FALSE)
 
 plotleg<- ggplot(correct_by_height_df, aes(avg_height, avg_correct, color = size_range, pch = method, linetype = method)) + #facet_wrap(~size_range)+ #, 
   #labeller = as_labeller(size_names)) + 
@@ -270,12 +272,7 @@ ggplot(probs_df[reorder[1:500],], aes(x =`Bayesian inference`, y = phyddle, colo
   labs(x = "Bayesian inference\n") + coord_fixed(ratio = 1)
 dev.off()
 
-png(paste(savedir, "bisse_c2.png", sep = ""), width =5, height = 3, units ="in", res = 500)
-ggplot(probs_df[reorder[1:500],], aes(x =`Bayesian inference`, y = phyddle, color = model,)) + 
-  geom_point(size = .1) + theme_classic()+coord_fixed(ratio = 1) +
-  labs(x = "Bayesian inference\n") + geom_abline(intercept = bisse_int , slope = 1, color = cols[1], linetype = 2) + geom_abline(intercept = -bisse_int , slope = 1, color = cols[1], linetype = 2) + 
-  geom_abline(intercept = mk_int , slope = 1, color = cols[2], linetype = 2) + geom_abline(intercept = -mk_int , slope = 1, color = cols[2], linetype = 2) 
-dev.off()
+
 
 probs_df$diff <- probs_df$phyddle - probs_df$`Bayesian inference`
 
@@ -294,14 +291,21 @@ df <- data.frame (model, diff)
 
 
 mean(abs(probs_df[1:(dim(probs_df)[1]/2), 4]) > .5)
-mean(abs(probs_df[1:(dim(probs_df)[1]/2), 4]) > .255)
-mk_int <- .255
+mean(abs(probs_df[1:(dim(probs_df)[1]/2), 4]) > .172)
+mk_int <- .172
 mean(abs(probs_df[((dim(probs_df)[1]/2)+1):dim(probs_df)[1], 4]) > .5)
-mean(abs(probs_df[((dim(probs_df)[1]/2)+1):dim(probs_df)[1], 4]) > .386)
-bisse_int <- .386
+mean(abs(probs_df[((dim(probs_df)[1]/2)+1):dim(probs_df)[1], 4]) > .306)
+bisse_int <- .306
 
 plot2_lines <- plot2 + geom_abline(intercept = bisse_int , slope = 1, color = cols[1], linetype = 2) + geom_abline(intercept = -bisse_int , slope = 1, color = cols[1], linetype = 2) + 
   geom_abline(intercept = mk_int , slope = 1, color = cols[2], linetype = 2) + geom_abline(intercept = -mk_int , slope = 1, color = cols[2], linetype = 2) 
+
+png(paste(savedir, "bisse_c2.png", sep = ""), width =5, height = 3, units ="in", res = 500)
+ggplot(probs_df[reorder[1:500],], aes(x =`Bayesian inference`, y = phyddle, color = model,)) + 
+  geom_point(size = .1) + theme_classic()+coord_fixed(ratio = 1) +
+  labs(x = "Bayesian inference\n") + geom_abline(intercept = bisse_int , slope = 1, color = cols[1], linetype = 2) + geom_abline(intercept = -bisse_int , slope = 1, color = cols[1], linetype = 2) + 
+  geom_abline(intercept = mk_int , slope = 1, color = cols[2], linetype = 2) + geom_abline(intercept = -mk_int , slope = 1, color = cols[2], linetype = 2) 
+dev.off()
 
 pdf(paste(savedir, "bisse.pdf", sep = ""), width =8, height = 3)
 plotSet <- ggarrange(plot1, plot3, plot2_lines,  nrow =1 , ncol = 3, labels= c("a", "b", "c"), widths = c(.33 * 8, .33 * 8 , .33 * 8 ))
