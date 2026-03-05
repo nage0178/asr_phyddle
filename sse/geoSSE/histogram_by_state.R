@@ -2,6 +2,7 @@ method_diff <- read.csv("~/asr_phyddle/sse/geoSSE/bayes/difference_phy-bayes.csv
 #colnames(method_diff)
 
 library(tidyr)
+library(dplyr)
 
 long <- method_diff %>%
   pivot_longer(

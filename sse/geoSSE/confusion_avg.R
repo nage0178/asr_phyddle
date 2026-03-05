@@ -1,6 +1,5 @@
 # truth <- read.csv("~/asr_phyddle/geoSSE/2_states/parent_l_r/larger/random_daughters/larger/estimate/sim.test_true.labels_cat.csv")
 # est <- read.csv("~/asr_phyddle/geoSSE/2_states/parent_l_r/larger/random_daughters/estimate/sim.test_est.labels_cat.csv")
-
 est <- read.csv("~/asr_phyddle/sse/geoSSE/estimate/sim.test_est.labels_cat.csv")
 truth <- read.csv("~/asr_phyddle/sse/geoSSE/estimate/sim.test_true.labels_cat.csv")
 est <- est[1:2500, ]
@@ -50,6 +49,8 @@ for (state in 1:nstates) {
 library(ggplot2)     # to plot
 library(gridExtra)   # to put more
 library(grid)        # plot together
+library(viridis)
+
 
 which(cm_d$Reference== 1)
 cm_d$true_state[which(cm_d$Reference== 1)] <- "A->A,A"
@@ -76,7 +77,7 @@ cm_d$inf_state <- factor(cm_d$inf_state, levels = c( "A->A,A", "B->B,B", "AB->A,
 
 pdf("~/asr_writing/manuscript/figs/confusion_geosse.pdf", width =4, height = 5)
 # plotting the matrix
-ggplot(data = cm_d, aes(y = inf_state , x = true_state, fill = proportion))+
+ggplot(data = cm_d, aes(y = inf_state , x = true_state, fill = proportion))+ scale_fill_viridis() +
   labs(x = "true ancestral states", y = "inferred ancestral states")+
   geom_tile() +
   geom_text(aes(label = round(proportion, digits = 2)), col = "red") +
@@ -123,7 +124,7 @@ pdf("~/asr_writing/manuscript/figs/confusion_geosse_bayes.pdf", width =4, height
 ggplot(data = b_d, aes(y = inf_state , x = true_state, fill = proportion))+
   labs(x = "true ancestral states", y = "inferred ancestral states")+
   geom_tile() +
-  geom_text(aes(label = round(proportion, digits = 2)), col = "red") +
+  geom_text(aes(label = round(proportion, digits = 2)), col = "red") + scale_fill_viridis() +
   #geom_text(aes(label = paste("",Freq,",",Perc,"%")), color = 'red', size = 8) +
   theme_light() +   theme(legend.position = "top") + theme(axis.text.x = element_text(angle = 45, vjust = .95, hjust=1), axis.text.y = element_text(angle = 45, vjust = 0.5, hjust=1))
 
@@ -132,7 +133,7 @@ both_method <- rbind(cm_d, b_d)
 both_method <- cbind(both_method, c(rep("phyddle", nrow(cm_d)), rep("Bayesian", nrow(b_d))))
 colnames(both_method)[7] <- "method"
 pdf("~/asr_writing/manuscript/figs/confusion_geosse_both.pdf", width =10, height = 5)
-ggplot(data = both_method, aes(y = inf_state , x = true_state, fill = proportion))+
+ggplot(data = both_method, aes(y = inf_state , x = true_state, fill = proportion))+scale_fill_viridis() +
   facet_wrap(~method)+
   labs(x = "true ancestral states", y = "inferred ancestral states")+
   geom_tile() +

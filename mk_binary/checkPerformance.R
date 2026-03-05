@@ -1,10 +1,10 @@
 library(caret)
 library(wrapr)
 library(ggplot2)
-
-wkdirs <- c("~/asr_phyddle/mk_binary/fix/", "~/asr_phyddle/mk_binary/var/")
+setwd("~/asr_phyddle/mk_binary/")
+wkdirs <- c("fix/", "var/")
 savedir <- "~/asr_writing/manuscript/figs/"
-dirs <- c("50/", "100/", "200/") #,  "500/")
+dirs <- c("50/", "100/", "200/")
 dirs <- c(paste(wkdirs[1], dirs, sep = ""), paste(wkdirs[2], dirs, sep = ""))
 
 numBins <- 11
@@ -32,7 +32,7 @@ for (dir in dirs) {
   true_phyddle <- read.csv(paste(dir, "estimate/out.test_true.labels_cat.csv", sep = ""))
   
   bayes <- read.csv(paste(dir, "bayes/all_Bayes.csv", sep = ""))
-  conv <- read.table(paste(dir, "bayes/notConverged", sep = ""), header = TRUE, sep = ",")
+  conv  <- read.table(paste(dir,"bayes/notConverged", sep = ""), header = TRUE, sep = ",")
   idx_rm <- conv[, 2]
   #probZero <- which(is.na(bayes$anc_state_2))
   #bayes$anc_state_2[probZero] <- (bayes$anc_state_1 == 0)[probZero]
@@ -137,6 +137,8 @@ for (dir in dirs) {
   correct_by_height_ml[((j-1) *numBins +1): (j*numBins), 4] <- fix
 
   j <- j + 1
+  print(paste("mean", dir))
+  print(mean(bin_est[,2:dim(bin_est)[2]] == truth[,2:dim(bin_est)[2]], na.rm = TRUE))
 }
 
 method <- c(rep("phyddle", dim(correct_by_height)[1]), rep("Bayesian\ninference", dim(correct_by_height_ml)[1]))
@@ -164,7 +166,7 @@ panelA <- ggplot(correct_by_height_fix, aes(avg_height, avg_correct, color = n_t
   geom_point() + theme_classic() + geom_line() + 
   labs(x = "Mean proportion of tree height",
        y = "proportion correct", 
-       color = "tree size") 
+       color = "tree size")  +coord_cartesian(xlim = c(0, 1.01), ylim = c(.5, 1), expand = FALSE)  #ylim(0, 1)
 pdf(paste(savedir, "mk_height_fixSize.pdf", sep = ""), width =5, height = 3)
 print(panelA )
 dev.off()
@@ -207,27 +209,3 @@ dev.off()
 png("~/asr_writing/manuscript/figs/prob_correct_by_prob.png", width =4, height = 3, units = "in", res = 500)
 print(probCorrect)
 dev.off()
-accuracy <- c(NA, length(dirs))
-  j <-1 
-for (dir in dirs) {
-  truth <- read.csv(paste(dir, "truth.csv", sep = ""))
-  
-  est_phyddle <- read.csv(paste(dir, "estimate/out.test_est.labels_cat.csv", sep = ""))
-  true_phyddle <- read.csv(paste(dir, "estimate/out.test_true.labels_cat.csv", sep = ""))
-  bin_est <- matrix(NA, nrow = dim(truth)[1], ncol = dim(truth)[2])
-  
-  for (i in c(1:(dim(est_phyddle)[2]/2))) {
-    colZero <- 2 + (i - 1) * 2
-    colOne  <- 3 + (i - 1) * 2
-
-    # Most likely state is 1 
-    infer <- (est_phyddle[,colOne] == apply(est_phyddle[,colZero:colOne] , 1, max)) * 1
-    bin_est[, i+1] <- infer
-    
-  }
-  findNA <- truth
-  findNA[!is.na(findNA)] <- 1
-  
-  accuracy[j] <- mean((bin_est[, -1] * findNA[, -1] == true_phyddle[, -1])* 1, na.rm = TRUE)
-  j <- j + 1
-}
