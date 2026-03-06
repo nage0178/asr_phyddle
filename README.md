@@ -70,6 +70,7 @@ Ancestral states are treated as a categorical variable with 8 states.
 The plots can be created with `plot_prob.R` and `heatMap.R`. The accuracies are calculated with `test_accuracy.R`.
 
 ## Markov model of a binary character
+### Phyddle analyses
 Navigate to the directory, `asr_phyddle/mk_binary`. 
 Then, run the following line to prepare the config files for phyddle
 ```
@@ -103,6 +104,7 @@ cd ../../var
 These scripts may take over an hour to run. 
 They are written to run in parallel and use 100 threads. 
 
+### Bayesian analyses
 To run the Bayesian analyses, first create the input files. 
 ```
 ./mkAllNexus.sh
@@ -140,6 +142,13 @@ R convergence.R
 ```
 The plots can be recreated using `makeAllPlots.R`.
 The paths the plots are saved to will need to be updated for the script to run without error. 
+
+### Root state alone
+Within the `mk_binary/fix` directory, the typical phyddle command, as shown below should be run in the directories `50`, `100`, and `200`. 
+```
+phyddle -s SFTEP 
+```
+This will estimate the root state as a single categorical variable without estimating the states of any other nodes. The script `separate_root_est_accuracy.R` compares the accuracies of the root states estimate by this method vs when using the marginal strategy, which estimates the ancestral states for all the nodes in the tree at once.
 
 ## SSE models
 ### BiSSE
@@ -210,6 +219,8 @@ To run the phyddle analyses, navigate to the `phyddle` directory within the `lio
 ```
 ./runPhyddle.sh
 ```
+The plot can be recreated with `plot_tree.R`.
+
 ### Ebola 
 To prepare the empirical data files for phyddle, within the `SIRM/empirical` run the following, 
 ```
@@ -223,3 +234,5 @@ The Ebola analyses used MASTER to simulate with a SIR + migration model. MASTER 
 ```
 phyddle -s SFTEP 
 ```
+
+The plot can be recreated with `plot_empirical.R`.
