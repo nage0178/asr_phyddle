@@ -1,17 +1,9 @@
 library(RevGadgets)
 library(ggplot2)
 library(ggpubr)
-#library(ggtree)
-#library(grid)
-#library(gridExtra)
-#library(ape)
 
-#file <- paste("~/asr_phyddle/SIRM_original_script/vhigh_sample/smaller_sample/empirical/400k.out.1.est.tre", sep = "")
-# file <- paste("~/asr_phyddle/SIRM_original_script/vhigh_sample/smaller_sample/empirical/out.1.ann.nex", sep = "")
-#file <- paste("~/asr_phyddle/SIRM_original_script/vhigh_sample/smaller_sample/empirical/500k_b1k.out.1.est.tre", sep = "")
-file <- paste("~/asr_phyddle/SIRM_original_script/vhigh_sample/smaller_sample/migration/50_tip/empirical/out.1.est.tre", sep = "")
-#file <- paste("~/asr_phyddle/SIRM_original_script/vhigh_sample/smaller_sample/migration/50_tip/nodes_count/empirical/out.1.est.tre", sep = "")
-#file <- paste("~/asr_phyddle/SIRM_original_script/vhigh_sample/smaller_sample/rel_peak_prevalence/counts_nodes/empirical/out.1.est.tre", sep = "")
+file <- paste("~/asr_phyddle/SIRM/empirical/out.1.est.tre", sep = "")
+#file <- paste("~/asr_phyddle/SIRM_original_script/vhigh_sample/smaller_sample/migration/50_tip/empirical/out.1.est.tre", sep = "")
 
 
 tree <- readTrees(path=file)
