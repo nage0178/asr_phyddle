@@ -9,6 +9,8 @@ The training of the neural networks make use of GPUs when they are available.
 - TensorPhylo (https://bitbucket.org/mrmay/tensorphylo/src/master/)
 - R
 - R packages: ape, castor, diversitree, phytools, dispRity, extraDistr, coda, caret, wrapr, ggplot2, ggpubr, patchwork, R.utils, cowplot, rhdf5, viridis
+- Python package masterpy
+- MASTER add on to BEAST 2. 
 
 Many of the R packages are only required for plotting, but some are also used for simulation and analysis. 
 
@@ -192,3 +194,32 @@ This was run using a branch of `rb` (commit 6a276d) and TensorPhylo (commit 8887
 The figures can be recreated using `confusion_avg.R` and `histogram_by_state.R`. 
 
 ## Empirical Analysis
+### Liolaemus
+Within the `liolaemus` directory, the Bayesian analyses can be run with the following commands.
+```
+# Format the input files
+./prepPhy.sh
+
+# Run two replicate MCMCs in RevBayes
+./runRb.sh
+```
+The RevBayes script was run with an older version of RevBayes (commit 6a276d) and TensorPhylo (commit 8887a4), and will not run with the latest version. 
+
+To run the phyddle analyses, navigate to the `phyddle` directory within the `liolaemus` directory. Then run the following script to run phyddle.
+
+```
+./runPhyddle.sh
+```
+### Ebola 
+To prepare the empirical data files for phyddle, within the `SIRM/empirical` run the following, 
+```
+./.prepareInput.sh 
+```
+This will add node labels to the original tree and subsample the tree. 
+It also formats the tip states for phyddle.
+
+The Ebola analyses used MASTER to simulate with a SIR + migration model. MASTER is slower than the other simulation methods used in this manuscript, and simulation of 500,000 trees will take hours or days, in part depending on how many cores are available. The entire analysis can still be run with the typical phyddle command in the `SIRM` directory.
+
+```
+phyddle -s SFTEP 
+```
