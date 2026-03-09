@@ -2,12 +2,7 @@
 #devtools::install_github("cmt2/RevGadgets")
 
 library(RevGadgets)
-library(coda)
 library(ggplot2)
-library(ggtree)
-library(grid)
-library(gridExtra)
-library(ape)
 
 #####
 
@@ -25,6 +20,7 @@ pie <- plotAncStatesPie(t =geo_exam, cladogenetic = TRUE,
                         tip_labels_offset = .2, 
                         # Move tip pies right slightly 
                         tip_pie_nudge_x = .07,
+                        state_transparency = 1.0,
                         # Change the size of node and tip pies  
                         tip_pie_size = 0.5,
                         node_pie_size = .5, 
@@ -54,6 +50,7 @@ pie <- plotAncStatesPie(t =geo_exam, cladogenetic = TRUE,
                         # Change the size of node and tip pies  
                         tip_pie_size = 0.5,
                         node_pie_size = .5, 
+                        state_transparency = 1.0,
                         ladderize = FALSE) 
 pdf("~/asr_writing/manuscript/figs/lio_geosse_phyddle.pdf")
 print(pie)

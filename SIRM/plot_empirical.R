@@ -2,8 +2,10 @@ library(RevGadgets)
 library(ggplot2)
 library(ggpubr)
 
-file <- paste("~/asr_phyddle/SIRM/empirical/out.1.est.tre", sep = "")
-#file <- paste("~/asr_phyddle/SIRM_original_script/vhigh_sample/smaller_sample/migration/50_tip/empirical/out.1.est.tre", sep = "")
+for (i in 5:1) {
+#file <- paste("~/asr_phyddle/SIRM_original_script/vhigh_sample/smaller_sample/migration/50_tip/empirical/train_", i, "_out.3.est.tre", sep = "")
+
+file <- paste("~/asr_phyddle/SIRM/empirical/train_", i, "_out.1.est.tre", sep = "")
 
 
 tree <- readTrees(path=file)
@@ -30,9 +32,11 @@ pie <- plotAncStatesPie(t =geo_exam,
                         state_transparency = 1.0, 
                           ladderize = FALSE)
 
-pdf("~/asr_writing/manuscript/figs/Ebola_pie.pdf", width =8, height = 6)  
+pdf(paste("~/asr_writing/manuscript/figs/prev_train_", i, "_Ebola_pie.pdf", sep = ""), width =8, height = 6)  
 print(pie)
 dev.off()
+
+}
 
 
 pdf("~/asr_writing/manuscript/figs/Ebola_pie_alone.pdf", width =8, height = 6)  
