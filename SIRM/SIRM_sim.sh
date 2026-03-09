@@ -8,9 +8,6 @@ do
 	# Move the tree so you don't overwrite it 
 	mv $1/$2.$i.tre $1/$2.$i.org.tre
 
-	# Reformat labels
-        #./labels_one.sh $i & 
-
 	# Label the internal nodes
 	python3 label.py $1/$2.$i.nex.tre $1/$2.$i.labeled.tre $1/$2.$i.tmp_anc_state.csv $1/$2.$i.tre 
 
