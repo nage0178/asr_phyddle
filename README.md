@@ -229,10 +229,10 @@ To prepare the empirical data files for phyddle, within the `SIRM/empirical` run
 This will add node labels to the original tree and subsample the tree. 
 It also formats the tip states for phyddle.
 
-The Ebola analyses used MASTER to simulate with a SIR + migration model. MASTER is slower than the other simulation methods used in this manuscript, and simulation of 500,000 trees will take hours or days, in part depending on how many cores are available. The entire analysis can still be run with the typical phyddle command in the `SIRM` directory.
+The Ebola analyses used MASTER to simulate with a SIR + migration model. MASTER is slower than the other simulation methods used in this manuscript, and simulation of 500,000 trees will take hours or days, in part depending on how many cores are available. The entire analysis can be run with the following command. This will run 5 trainings instead of the typical single network training. 
 
 ```
-phyddle -s SFTEP 
+./runMutipleTrain.sh
 ```
 
 The plot can be recreated with `plot_empirical.R`.
