@@ -35,6 +35,9 @@ pie <- plotAncStatesPie(t =geo_exam,
                           state_transparency = 1.0, 
                           ladderize = FALSE, 
                           mrsd="2014-12-08") +theme_tree2() + ggplot2::scale_x_continuous(c(-10,10)) 
+if (i == 1) {
+  pie <- pie + xlim_tree(2015 + 1/12)
+}
 
 
 pdf(paste("~/asr_writing/manuscript/figs/prev_train_", i, "_Ebola_pie.pdf", sep = ""), width =8, height = 6)  

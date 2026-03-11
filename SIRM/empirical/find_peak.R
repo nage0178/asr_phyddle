@@ -52,12 +52,12 @@ df <- as.data.frame(cbind(prev, pop, week))
 df$week <- (df$week -1) / 52 + 2014
 df$pop <- as.factor(df$pop)
 cols <- c("darkred", "darkviolet", "darkgoldenrod1", "darkgreen", "blue1")
-#xlimits <- layer_scales(pie)$x$get_limits()
-xlimits <- c(2014.321, 2014.934)
-first_day <- c(1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335) /365
+xlimits <- layer_scales(pie)$x$get_limits()
+#xlimits <- c(2014.321, 2014.934 + 1.5/12)
+first_day <- c(1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 335+31, 335+31+31) /365
 panel2 <- ggplot(df, aes(week, prev)) + geom_line(aes(color = pop)) +
   scale_color_manual(values = cols) + theme_classic() +
   ylab("prevalence (counts)") +
-  xlab("month (2014)") +
-  scale_x_continuous(limits = xlimits, breaks = (2014 + first_day), labels = month.abb) + 
+  xlab("month (2014 - 2015)") +
+  scale_x_continuous(limits = xlimits, breaks = (2014 + first_day), labels = c(month.abb, month.abb[1:2])) + 
   theme(legend.position = "none")
