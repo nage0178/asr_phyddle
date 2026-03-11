@@ -1,12 +1,12 @@
-library(phytools)
-
+library(ggplot2)
+setwd("~/asr_phyddle/SIRM/empirical/")
 dat <- as.data.frame(read.csv("EBOV_maxCases.csv"))
 dat_SLE <- dat[which(dat$country == "SLE"), ]
 
 # Add the districts together that correspond to the same regions in the analysis
 pop1_row <- c(1, 4, 6)
 pop2_row <- c(8, 7, 2)
-pop3_row <- c(12, 10, 2)
+pop3_row <- c(12, 10, 5)
 pop4_row <- c(11, 9, 3)
 pop5_row <- c(13, 14)
 
@@ -41,3 +41,23 @@ for (i in 3:dim(comb_pop)[2]) {
 peak_prev_1week <- apply(prevalence_1week, 1, function(x){which(x == max(x))}) - 20 
 peak_prev_2week <- apply(prevalence_2week, 1, function(x){which(x == max(x))}) - 20 
 
+numRep <- dim(prevalence_2week)[2]
+
+prev <- c(t(prevalence_2week))
+#prev <- c(t(comb_pop))
+
+pop <- c(rep(0, numRep), rep(1,numRep), rep(2,numRep), rep(3,numRep), rep(4,numRep))
+week <- seq(1:numRep)
+df <- as.data.frame(cbind(prev, pop, week))
+df$week <- (df$week -1) / 52 + 2014
+df$pop <- as.factor(df$pop)
+cols <- c("darkred", "darkviolet", "darkgoldenrod1", "darkgreen", "blue1")
+#xlimits <- layer_scales(pie)$x$get_limits()
+xlimits <- c(2014.321, 2014.934)
+first_day <- c(1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335) /365
+panel2 <- ggplot(df, aes(week, prev)) + geom_line(aes(color = pop)) +
+  scale_color_manual(values = cols) + theme_classic() +
+  ylab("prevalence (counts)") +
+  xlab("month (2014)") +
+  scale_x_continuous(limits = xlimits, breaks = (2014 + first_day), labels = month.abb) + 
+  theme(legend.position = "none")

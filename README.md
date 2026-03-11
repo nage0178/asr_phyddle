@@ -235,4 +235,4 @@ The Ebola analyses used MASTER to simulate with a SIR + migration model. MASTER 
 ./runMutipleTrain.sh
 ```
 
-The plot can be recreated with `plot_empirical.R`.
+The plot can be recreated with `plot_both_panels.R`.
