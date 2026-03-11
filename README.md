@@ -4,15 +4,20 @@ Many of the scripts are written to be run on a cluster without using a job sched
 The training of the neural networks make use of GPUs when they are available.  
 
 # Required software
-- phyddle  (https://phyddle.org/)
+- phyddle  (Requires the devAncState branch commit 880e99b, https://github.com/mlandis/phyddle/tree/devAncState)
 - RevBayes (development branch) (https://github.com/revbayes/revbayes)
 - TensorPhylo (https://bitbucket.org/mrmay/tensorphylo/src/master/)
 - R
 - R packages: ape, castor, diversitree, phytools, dispRity, extraDistr, coda, caret, wrapr, ggplot2, ggpubr, patchwork, R.utils, cowplot, rhdf5, viridis
 - Python package masterpy
 - MASTER add on to BEAST 2. 
+- pdfcrop (for some of the plotting)
 
 Many of the R packages are only required for plotting, but some are also used for simulation and analysis. 
+
+## Documentation
+Phyddle documentation for ancestral state reconstruction is available on github devAncState branch at https://github.com/mlandis/phyddle/tree/devAncState/docs/build/html. 
+This will be merged into the main documentation in the future.
 
 # To reproduce the results
 Most of simulations proceed as follows: 
