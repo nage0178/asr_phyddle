@@ -42,7 +42,6 @@ for(i in 1:(tree.nnodes()))
    if (tree.isInternal(i)){
 	c1= tree.child(i, 1)
 	c2 = tree.child(i, 2)
-#	print(i, c1, c2)
         write(i, c1, c2, "\n", append =TRUE, file=matrix_fp)
     }
 }
@@ -93,7 +92,6 @@ for (i in 1:num_ranges) {
     # This is 2
     if (i <= num_regions) {
 
-        #mu[i] := r_e[i]
         mu[i] ~ dnExp(rate_param) 
 	r_e[i] := mu[i]
     }
@@ -147,7 +145,6 @@ for (i in 1:num_ranges) {
 for (i in 1:N) {
     r_d[i][i] <- 0.0
   for (j in 1:N) {
-    #r_d[i][j] <- 1.0
     if (i != j) {
       r_d[i][j] ~ dnExp(rate_param)
     }
@@ -177,8 +174,8 @@ Q_bg.getStateDescriptions()[3] # for state 3, '11' -> 'AB'
 print("cladogenetic")
 
 ###### From other script
-speciation_wide_sympatry[1] ~ dnExp(rate_param) #dnLognormal(rate_mean, rate_sd)
-speciation_wide_sympatry[2] ~ dnExp(rate_param) #dnLognormal(rate_mean, rate_sd)
+speciation_wide_sympatry[1] ~ dnExp(rate_param) 
+speciation_wide_sympatry[2] ~ dnExp(rate_param) 
 mvi = 1
 mv[mvi++] = ( mvSlide( speciation_wide_sympatry[1], weight=4 ) )
 mv[mvi++] = ( mvSlide( speciation_wide_sympatry[2], weight=4 ) )
@@ -195,8 +192,8 @@ speciation_rates[2] := speciation_wide_sympatry[2]/2
 # ancestral range but the other lineage inherits only a single region.
 # AB-> A,AB or AB, A 
 # or   B,AB or AB, B
-speciation_sub_sympatry[1] := speciation_wide_sympatry[1] #~ dnExp(rate_param) #dnLognormal(rate_mean, rate_sd)
-speciation_sub_sympatry[2] := speciation_wide_sympatry[2] #~ dnExp(rate_param) #dnLognormal(rate_mean, rate_sd)
+speciation_sub_sympatry[1] := speciation_wide_sympatry[1] 
+speciation_sub_sympatry[2] := speciation_wide_sympatry[2] 
 
 # Define the subset sympatry events and assign each a speciation rate:
 clado_events[3] = [2, 2, 0] # 11 -> 11, 01
@@ -281,19 +278,11 @@ n_gen = 15000
 n_burn = 1500
 printgen = 10
 
-print("moves")
 # MCMC MOVES
-#mv[mvi++] = mvScale(r_w[1], weight=1)
-#mv[mvi++] = mvScale(r_w[2], weight=1)
 mv[mvi++] = mvScale(mu[1], weight=1)
 mv[mvi++] = mvScale(mu[2], weight=1)
-#mv[mvi++] = mvScale(rho_b, weight=1)
 mv[mvi++] = mvScale(r_d[1][2], weight=1)
 mv[mvi++] = mvScale(r_d[2][1], weight=1)
-#mv[mvi++] = mvSimplex(m_e_simplex, weight=m_e.size())
-#mv[mvi++] = mvSimplex(m_w_simplex, weight=m_w.size())
-#mv[mvi++] = mvSimplex(m_b_simplex, weight=m_b_simplex.size())
-#mv[mvi++] = mvSimplex(m_d_simplex, weight=m_d_simplex.size())
 
 # MCMC MONITORS
 mni = 1
@@ -313,7 +302,6 @@ for (i in 1:state_labels.size()) {
 
 # MCMC START
 mdl = model(clado_matrix)
-# Ths line causes problems
 ch = mcmc(mv, mn, mdl,nruns=1)
 ch.burnin(n_burn, tuningInterval=50)
 ch.run(n_gen)
