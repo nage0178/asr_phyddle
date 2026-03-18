@@ -22,3 +22,9 @@ cp empirical/out.1.est.tre empirical/train_4_out.1.est.tre
 phyddle -s E --trn_dir train_5 --est_dir estimate_5 --plt_dir plot_5 --no_sim &> outE5 
 cp empirical/out.1.est.tre empirical/train_5_out.1.est.tre
 
+
+# Averages 5 trainings
+Rscript processMultiple.R
+
+# Creates nexus with averaged values
+./annotat_nexus.sh
