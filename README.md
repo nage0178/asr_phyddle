@@ -16,7 +16,7 @@ The training of the neural networks make use of GPUs when they are available.
 Many of the R packages are only required for plotting, but some are also used for simulation and analysis. 
 
 ## Documentation
-Phyddle documentation for ancestral state reconstruction is available on github devAncState branch at https://github.com/mlandis/phyddle/tree/devAncState/docs/build/html. 
+Phyddle documentation for ancestral state reconstruction is available on github devAncState branch at [https://github.com/mlandis/phyddle/tree/devAncState/docs/build/html](https://htmlpreview.github.io/?https://raw.githubusercontent.com/mlandis/phyddle/devAncState/docs/build/html/advanced_features.html). 
 This will be merged into the main documentation in the future.
 
 # To reproduce the results
