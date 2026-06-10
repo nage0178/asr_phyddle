@@ -29,6 +29,17 @@ states[,6] <- ( asr_0) * (!asr_1) * ( asr_2)
 states[,7] <- ( asr_0) * ( asr_1) * (!asr_2)  
 states[,8] <- ( asr_0) * ( asr_1) * ( asr_2)  
 
+
+# First column should be symmetric, second should be asymmetric
+counts <- matrix(NA, nrow = 8, ncol = 2) 
+for (j in 0:1) {
+ for (i in 1:8) {
+   counts[i, j+1] <- sum(states[,i] * (asymm == j) )
+ }
+}
+print(counts)
+print(sum(counts))
+
 asymmMat <- matrix(NA, nrow = 8, ncol = 3)
 symmMat <- matrix(NA, nrow = 8, ncol = 3)
 
