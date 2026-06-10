@@ -17,7 +17,7 @@ for (i in seq_along(plots)) {
 # Draw aligned plots
 both_plots <- plot_grid(plotlist = grobs, ncol = 1, rel_heights = c(4, 1))
 
-pdf("~/asr_writing/manuscript/figs/pie_prevalence_2week.pdf", width =8, height = 9)  
+pdf("~/asr_writing/manuscript/figs/pie_prevalence_2week_avg.pdf", width =8, height = 9)  
 both_plots +  annotate("rect", xmin = 0, xmax = 1, ymin = .21, ymax = .2525,
                        fill = "white", alpha = 1)
 dev.off()
